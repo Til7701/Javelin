@@ -1,12 +1,14 @@
 package de.til7701.continu_num.interpreter;
 
+import de.til7701.continu_num.core.reflect.Type;
+
 public interface Variable {
 
-    String getType();
+    Type type();
 
     boolean isMutable();
 
-    Object getValue();
+    Object value();
 
     Variable asMutable();
 

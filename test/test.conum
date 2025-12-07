@@ -1,5 +1,7 @@
 mut i32 a = 5;
-mut i16 b = 10;
+str b = "Hello, Conum!";
+
+IO.println();
 
 IO.println("Initial values:");
 IO.println(a);
@@ -7,14 +9,9 @@ IO.println(b);
 
 IO.println("Modifying values:");
 a = a + 15;
-b = b * 2;
-
-IO.println(a);
-IO.println(b);
-
-a = b - 3;
-b = b / 5;
+a = a * 2;
+a = a - 10;
+a = a / 5;
 
 IO.println("Final values:");
 IO.println(a);
-IO.println(b);

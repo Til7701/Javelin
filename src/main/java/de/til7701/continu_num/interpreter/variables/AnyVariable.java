@@ -1,20 +1,20 @@
 package de.til7701.continu_num.interpreter.variables;
 
-import de.til7701.continu_num.core.reflect.Str;
+import de.til7701.continu_num.core.reflect.Any;
 import de.til7701.continu_num.core.reflect.Type;
 import de.til7701.continu_num.interpreter.Variable;
 
-public class StringVariable implements Variable {
+public class AnyVariable implements Variable, Any {
 
     private final boolean mutable;
 
-    private String value;
+    private Object value;
 
-    public StringVariable(String value) {
+    public AnyVariable(Object value) {
         this(false, value);
     }
 
-    public StringVariable(boolean mutable, String value) {
+    public AnyVariable(boolean mutable, Object value) {
         this.mutable = mutable;
         this.value = value;
     }
@@ -28,7 +28,7 @@ public class StringVariable implements Variable {
 
     @Override
     public Type type() {
-        return Str.instance();
+        return Any.instance();
     }
 
     @Override
@@ -37,13 +37,13 @@ public class StringVariable implements Variable {
     }
 
     @Override
-    public String value() {
+    public Object value() {
         return value;
     }
 
     @Override
     public Variable asMutable() {
-        return new StringVariable(true, value);
+        return new AnyVariable(true, value);
     }
 
 }

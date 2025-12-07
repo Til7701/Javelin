@@ -7,7 +7,7 @@ import picocli.CommandLine;
 
 public class Main {
 
-    static void main(String[] args) {
+    static void main(String[] args) throws Exception {
         CommandLine.Help.ColorScheme colorScheme = new CommandLine.Help.ColorScheme.Builder()
                 .commands(CommandLine.Help.Ansi.Style.bold, CommandLine.Help.Ansi.Style.underline)
                 .options(CommandLine.Help.Ansi.Style.fg_cyan)

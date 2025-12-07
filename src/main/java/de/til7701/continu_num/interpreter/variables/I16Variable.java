@@ -1,12 +1,19 @@
 package de.til7701.continu_num.interpreter.variables;
 
+import de.til7701.continu_num.core.reflect.I16;
+import de.til7701.continu_num.core.reflect.Type;
 import de.til7701.continu_num.interpreter.Variable;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import java.util.Objects;
-
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor
-public final class I16Variable implements Variable {
+public final class I16Variable implements Variable, I16 {
+
+    private static final I16 MIN_VALUE = new I16Variable(false, Short.MIN_VALUE);
+    private static final I16 MAX_VALUE = new I16Variable(false, Short.MAX_VALUE);
 
     private final boolean mutable;
 
@@ -19,6 +26,7 @@ public final class I16Variable implements Variable {
 
     private static short toShort(Object value) {
         return switch (value) {
+            case I16Variable v -> v.value;
             case Short s -> s;
             case Number n -> n.shortValue();
             case String str -> Short.parseShort(str);
@@ -28,8 +36,8 @@ public final class I16Variable implements Variable {
     }
 
     @Override
-    public String getType() {
-        return "i16";
+    public Type type() {
+        return I16.instance();
     }
 
     @Override
@@ -38,7 +46,7 @@ public final class I16Variable implements Variable {
     }
 
     @Override
-    public Short getValue() {
+    public Short value() {
         return value;
     }
 
@@ -55,16 +63,51 @@ public final class I16Variable implements Variable {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(mutable, value);
+    public I16 minValue() {
+        return MIN_VALUE;
     }
 
     @Override
-    public String toString() {
-        return "IntVariable[" +
-                "mutable=" + mutable +
-                ", value=" + value +
-                ']';
+    public I16 maxValue() {
+        return MAX_VALUE;
     }
 
+    @Override
+    public I16 add(I16 a, I16 b) {
+        if (a instanceof I16Variable va && b instanceof I16Variable vb) {
+            short result = (short) (va.value + vb.value);
+            return new I16Variable(false, result);
+        }
+        throw new IllegalArgumentException("Operands must be I16Variable instances");
+    }
+
+    @Override
+    public I16 sub(I16 a, I16 b) {
+        if (a instanceof I16Variable va && b instanceof I16Variable vb) {
+            short result = (short) (va.value - vb.value);
+            return new I16Variable(false, result);
+        }
+        throw new IllegalArgumentException("Operands must be I16Variable instances");
+    }
+
+    @Override
+    public I16 mul(I16 a, I16 b) {
+        if (a instanceof I16Variable va && b instanceof I16Variable vb) {
+            short result = (short) (va.value * vb.value);
+            return new I16Variable(false, result);
+        }
+        throw new IllegalArgumentException("Operands must be I16Variable instances");
+    }
+
+    @Override
+    public I16 div(I16 a, I16 b) {
+        if (a instanceof I16Variable va && b instanceof I16Variable vb) {
+            if (vb.value == 0) {
+                throw new ArithmeticException("Division by zero");
+            }
+            short result = (short) (va.value / vb.value);
+            return new I16Variable(false, result);
+        }
+        throw new IllegalArgumentException("Operands must be I16Variable instances");
+    }
 }

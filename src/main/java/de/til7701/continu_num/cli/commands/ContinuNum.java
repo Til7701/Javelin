@@ -1,10 +1,12 @@
 package de.til7701.continu_num.cli.commands;
 
-import de.til7701.continu_num.ast.ContinuNumFile;
 import de.til7701.continu_num.cli.VersionProvider;
 import de.til7701.continu_num.cli.mixins.DebugMixin;
+import de.til7701.continu_num.core.ast.ContinuNumFile;
+import de.til7701.continu_num.core.environment.Environment;
+import de.til7701.continu_num.core.parser.FileParser;
+import de.til7701.continu_num.core.type_checker.TypeChecker;
 import de.til7701.continu_num.interpreter.Interpreter;
-import de.til7701.continu_num.parser.FileParser;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -32,7 +34,10 @@ public class ContinuNum implements Callable<Integer> {
     public Integer call() throws Exception {
         FileParser fileParser = new FileParser();
         ContinuNumFile ast = fileParser.parse(source);
-        Interpreter interpreter = new Interpreter();
+        final Environment env = new Environment();
+        TypeChecker typeChecker = new TypeChecker(env);
+        typeChecker.check(ast);
+        Interpreter interpreter = new Interpreter(env);
         interpreter.interpret(ast);
         return 0;
     }

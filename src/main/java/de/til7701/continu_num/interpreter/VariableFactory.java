@@ -1,18 +1,27 @@
 package de.til7701.continu_num.interpreter;
 
-import de.til7701.continu_num.interpreter.variables.I16Variable;
-import de.til7701.continu_num.interpreter.variables.I32Variable;
+import de.til7701.continu_num.core.reflect.*;
+import de.til7701.continu_num.interpreter.variables.*;
 
 public class VariableFactory {
 
-    public static final Variable VOID = new I32Variable(false, 0);
-
-    public Variable createVariable(boolean mutable, String type, Object value) {
-        return switch (type) {
-            case "i16" -> new I16Variable(mutable, value);
-            case "i32" -> new I32Variable(mutable, value);
-            default -> throw new IllegalStateException("Cannot construct variable for unknown type: " + type);
+    public Variable cast(Variable variable, Type target) {
+        return switch (target) {
+            case I32 _ -> new I32Variable(variable.isMutable(), variable.value());
+            case I16 _ -> new I16Variable(variable.isMutable(), variable.value());
+            case None _ -> throw new UnsupportedOperationException("Cannot cast to None type");
+            case Str _ -> new StringVariable(variable.isMutable(), variable.value().toString());
+            case Any _ -> new AnyVariable(variable.isMutable(), variable.value());
         };
     }
 
+    public Variable createVariableFromJavaObject(Type returnType, Object result) {
+        return switch (returnType) {
+            case I32 _ -> new I32Variable(false, result);
+            case I16 _ -> new I16Variable(false, result);
+            case None _ -> NoneVariable.INSTANCE;
+            case Str _ -> new StringVariable(false, result.toString());
+            case Any _ -> new AnyVariable(false, result);
+        };
+    }
 }

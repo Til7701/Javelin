@@ -1,36 +1,27 @@
 package de.til7701.continu_num.interpreter;
 
-import de.til7701.continu_num.ast.*;
-import de.til7701.continu_num.interpreter.operations.*;
+import de.til7701.continu_num.core.ast.*;
+import de.til7701.continu_num.core.environment.Environment;
+import de.til7701.continu_num.core.reflect.*;
 import de.til7701.continu_num.interpreter.variables.I32Variable;
 import de.til7701.continu_num.interpreter.variables.StringVariable;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
 public class Interpreter {
 
-    private static final Class<?>[] JAVA_CLASSES = new Class<?>[]{
-            IO.class
-    };
-
-    private static final Class<?>[] OPERATION_CLASSES = new Class<?>[]{
-            AddOperations.class,
-            MultiplyOperations.class,
-            SubOperations.class,
-            DivOperations.class
-    };
-
-    private final KlassLoader klassLoader = new KlassLoader();
-    private final KlassRegister klassRegister = new KlassRegister();
-    private final Context context = new Context();
     private final VariableFactory variableFactory = new VariableFactory();
-    private final OperationsRegister operationsRegister = new OperationsRegister();
+    private final Operations operations = new Operations(variableFactory);
 
-    public Interpreter() {
-        for (Class<?> javaClass : JAVA_CLASSES) {
-            klassRegister.registerKlass(klassLoader.loadJavaClass(javaClass));
-        }
-        for (Class<?> operationClass : OPERATION_CLASSES) {
-            operationsRegister.registerOperationsFromJavaClass(operationClass);
-        }
+    private final KlassRegister klassRegister;
+    private final OperationsRegister operationsRegister;
+
+    private final Context context = new Context();
+
+    public Interpreter(Environment environment) {
+        this.klassRegister = environment.getKlassRegister();
+        this.operationsRegister = environment.getOperationsRegister();
     }
 
     public void interpret(ContinuNumFile ast) {
@@ -48,11 +39,20 @@ public class Interpreter {
     }
 
     private void executeSymbolInitialization(SymbolInitialization symbolInitialization) {
-        String type = symbolInitialization.type();
         String name = symbolInitialization.name();
         Variable value = evaluateExpression(symbolInitialization.value());
-        if (symbolInitialization.isMutable())
+        if (symbolInitialization.isMutable()) {
             value = value.asMutable();
+        }
+
+        Type type = symbolInitialization.type();
+        if (!type.isAssignableFrom(value.type())) {
+            throw new RuntimeException("Type mismatch: cannot assign " + value.type() + " to " + type);
+        }
+        if (!type.equals(value.type())) { // avoid with strict types and explicit casts with new language feature
+            value = new VariableFactory().cast(value, type);
+        }
+
         context.initializeVariable(name, value);
     }
 
@@ -64,6 +64,12 @@ public class Interpreter {
             throw new RuntimeException("Variable " + name + " is not initialized");
         }
         if (previousValue.isMutable()) {
+            if (!previousValue.type().isAssignableFrom(value.type())) {
+                throw new RuntimeException("Type mismatch: cannot assign " + value.type() + " to " + previousValue.type());
+            }
+            if (!previousValue.type().equals(value.type())) { // avoid with strict types and explicit casts with new language feature
+                value = variableFactory.cast(value, previousValue.type());
+            }
             context.initializeVariable(name, value.asMutable());
         } else {
             throw new RuntimeException("Variable " + name + " is not mutable");
@@ -75,11 +81,30 @@ public class Interpreter {
             String typeName = methodCall.typeName().get();
             String methodName = methodCall.methodName();
             Klass klass = klassRegister.getKlass(typeName).orElseThrow();
-            Object[] args = methodCall.arguments().stream()
+            Variable[] args = methodCall.arguments().stream()
                     .map(this::evaluateExpression)
-                    .map(Variable::getValue)
-                    .toArray();
-            klass.executeMethod(methodName, args);
+                    .toArray(Variable[]::new);
+
+            Type[] argTypes = Arrays.stream(args)
+                    .map(Variable::type)
+                    .toArray(Type[]::new);
+            Metod metod = klass.getMethod(methodName, argTypes).orElseThrow();
+
+            if (metod instanceof JavaMetod javaMetod) {
+                try {
+                    Object[] javaArgs = Arrays.stream(args)
+                            .map(Variable::value)
+                            .toArray();
+
+                    Class<?> declaringClass = javaMetod.javaClass();
+                    Method method = declaringClass.getDeclaredMethod(methodName, javaMetod.javaParameterClasses());
+                    Object result = method.invoke(null, javaArgs);
+                    Type returnType = javaMetod.returnType();
+                    return variableFactory.createVariableFromJavaObject(returnType, result);
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to invoke method " + methodName + " of class " + typeName, e);
+                }
+            }
         } else {
             throw new UnsupportedOperationException();
         }
@@ -96,13 +121,13 @@ public class Interpreter {
             case BinaryExpression(Expression left, BinaryOperator operator, Expression right) -> {
                 Variable leftValue = evaluateExpression(left);
                 Variable rightValue = evaluateExpression(right);
-                Operation operation = operationsRegister.getOperation(
-                        operator.getSymbol(),
-                        leftValue.getType(),
-                        rightValue.getType()
+                Operation operation = operationsRegister.getBinaryOperation(
+                        operator,
+                        leftValue.type(),
+                        rightValue.type()
                 ).orElseThrow(() -> new RuntimeException("Operation " + operator.getSymbol() +
-                        " not found for types " + leftValue.getType() + " and " + rightValue.getType()));
-                yield operation.execute(leftValue, rightValue);
+                        " not found for types " + leftValue.type() + " and " + rightValue.type()));
+                yield operations.invokeBinary(operation, leftValue, rightValue);
             }
         };
     }

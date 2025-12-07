@@ -1,12 +1,19 @@
 package de.til7701.continu_num.interpreter.variables;
 
+import de.til7701.continu_num.core.reflect.I32;
+import de.til7701.continu_num.core.reflect.Type;
 import de.til7701.continu_num.interpreter.Variable;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import java.util.Objects;
-
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor
-public final class I32Variable implements Variable {
+public final class I32Variable implements Variable, I32 {
+
+    private static final I32 MIN_VALUE = new I32Variable(false, Integer.MIN_VALUE);
+    private static final I32 MAX_VALUE = new I32Variable(false, Integer.MAX_VALUE);
 
     private final boolean mutable;
 
@@ -23,6 +30,7 @@ public final class I32Variable implements Variable {
 
     private static int toInt(Object value) {
         return switch (value) {
+            case I32Variable v -> v.value;
             case Integer i -> i;
             case Number n -> n.intValue();
             case String str -> Integer.parseInt(str);
@@ -32,8 +40,8 @@ public final class I32Variable implements Variable {
     }
 
     @Override
-    public String getType() {
-        return "i32";
+    public Type type() {
+        return I32.instance();
     }
 
     @Override
@@ -42,7 +50,7 @@ public final class I32Variable implements Variable {
     }
 
     @Override
-    public Integer getValue() {
+    public Integer value() {
         return value;
     }
 
@@ -59,16 +67,51 @@ public final class I32Variable implements Variable {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(mutable, value);
+    public I32 minValue() {
+        return MIN_VALUE;
     }
 
     @Override
-    public String toString() {
-        return "IntVariable[" +
-                "mutable=" + mutable +
-                ", value=" + value +
-                ']';
+    public I32 maxValue() {
+        return MAX_VALUE;
     }
 
+    @Override
+    public I32 add(I32 a, I32 b) {
+        if (a instanceof I32Variable va && b instanceof I32Variable vb) {
+            short result = (short) (va.value + vb.value);
+            return new I32Variable(false, result);
+        }
+        throw new IllegalArgumentException("Operands must be I16Variable instances");
+    }
+
+    @Override
+    public I32 sub(I32 a, I32 b) {
+        if (a instanceof I32Variable va && b instanceof I32Variable vb) {
+            int result = va.value - vb.value;
+            return new I32Variable(false, result);
+        }
+        throw new IllegalArgumentException("Operands must be I32Variable instances");
+    }
+
+    @Override
+    public I32 mul(I32 a, I32 b) {
+        if (a instanceof I32Variable va && b instanceof I32Variable vb) {
+            int result = va.value * vb.value;
+            return new I32Variable(false, result);
+        }
+        throw new IllegalArgumentException("Operands must be I32Variable instances");
+    }
+
+    @Override
+    public I32 div(I32 a, I32 b) {
+        if (a instanceof I32Variable va && b instanceof I32Variable vb) {
+            if (vb.value == 0) {
+                throw new ArithmeticException("Division by zero");
+            }
+            int result = va.value / vb.value;
+            return new I32Variable(false, result);
+        }
+        throw new IllegalArgumentException("Operands must be I32Variable instances");
+    }
 }
