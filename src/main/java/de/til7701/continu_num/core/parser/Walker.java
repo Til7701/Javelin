@@ -46,7 +46,7 @@ public class Walker extends ContinuNumParserBaseVisitor<Node> {
         CommandLine.tracer().debug("Visiting SymbolDefinition %s", ctx.getText());
 
         boolean mutable = ctx.MUT() != null;
-        Type type = Type.fromName(ctx.TypeIdentifier().getText());
+        Type type = Type.fromName(ctx.typeIdentifier().getText());
         String name = ctx.SymbolIdentifier().getText();
 
         Expression expression = (Expression) visit(ctx.expression());
@@ -63,7 +63,7 @@ public class Walker extends ContinuNumParserBaseVisitor<Node> {
     public Node visitMethodCall(ContinuNumParser.MethodCallContext ctx) {
         CommandLine.tracer().debug("Visiting MethodCall %s", ctx.getText());
 
-        Optional<String> typeName = Optional.ofNullable(ctx.TypeIdentifier()).map(ParseTree::getText);
+        Optional<String> typeName = Optional.ofNullable(ctx.typeIdentifier()).map(ParseTree::getText);
         String methodName = ctx.SymbolIdentifier().getText();
         List<Expression> arguments = ctx.expression().stream()
                 .map(expressionContext -> (Expression) visit(expressionContext))

@@ -18,3 +18,31 @@ IO.println("Final values:");
 IO.println(a);
 
 IO.println(b[2]);
+
+i32[] arr = array{1, 2, 3, 4, 5};
+IO.println(arr);
+
+mut i32 i = 0;
+while i < arr.size() {
+    IO.println(arr[i]);
+    i = i + 1;
+}
+
+i32[][] matrix = array{
+    {1, 2, 3},
+    {4, 5, 6, 7},
+    {8, 9, 10}
+};
+
+IO.println("Matrix elements:");
+
+mut i32 i = 0;
+while i < matrix.size() {
+    mut i32 j = 0;
+    while j < matrix[i].size() {
+        IO.print(matrix[i][j]);
+        j = j + 1;
+    }
+    IO.println();
+    i = i + 1;
+}

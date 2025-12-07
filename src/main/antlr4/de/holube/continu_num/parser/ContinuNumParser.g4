@@ -9,20 +9,22 @@ compilationUnit : statement* EOF;
 statement
     : symbolDefinition SEMI
     | assignment SEMI
-    | methodCall SEMI
+    | staticMethodCall SEMI
+    | whileStatement
     ;
 
 symbolDefinition
-    : MUT? TypeIdentifier SymbolIdentifier ASSIGN expression
+    : MUT? typeIdentifier SymbolIdentifier ASSIGN expression
     ;
 
 expression
     : literalExpression
     | symbolIdentifierExpression
-    | methodCall
+    | staticMethodCall
     | expression binaryOperator expression
     | LPAREN expression RPAREN
     | expression LBRACK expression RBRACK // collection access
+    | ARRAY LBRACE (expression (COMMA expression)*)? RBRACE // 1D array initializer
     ;
 
 binaryOperator
@@ -30,6 +32,17 @@ binaryOperator
     | SUB
     | MUL
     | DIV
+    | LT
+    | GT
+    | LE
+    | GE
+    | EQUAL
+    | NOTEQUAL
+    ;
+
+typeIdentifier
+    : TypeIdentifier
+    | typeIdentifier LBRACK RBRACK
     ;
 
 literalExpression
@@ -46,6 +59,10 @@ assignment
     : SymbolIdentifier ASSIGN expression
     ;
 
-methodCall
-    : (TypeIdentifier DOT)? SymbolIdentifier LPAREN (expression (COMMA expression)*)? RPAREN
+staticMethodCall
+    : (typeIdentifier | expression) DOT SymbolIdentifier LPAREN (expression (COMMA expression)*)? RPAREN
+    ;
+
+whileStatement
+    : WHILE expression LBRACE statement* RBRACE
     ;

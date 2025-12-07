@@ -1,6 +1,9 @@
 lexer grammar ContinuNumLexer;
 
 MUT: 'mut';
+MEW: 'mew';
+ARRAY: 'array';
+WHILE: 'while';
 
 LPAREN : '(';
 RPAREN : ')';
