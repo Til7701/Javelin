@@ -1,0 +1,16 @@
+package de.til7701.javelin.ast.type_definition.classes;
+
+import de.til7701.javelin.ast.Node;
+import de.til7701.javelin.ast.Span;
+import de.til7701.javelin.ast.expression.Expression;
+import de.til7701.javelin.ast.type.Type;
+
+import java.util.Optional;
+
+public record ClassFieldDefinition(
+        Span span,
+        Type type,
+        String name,
+        Optional<Expression> value
+) implements Node {
+}
