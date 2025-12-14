@@ -4,15 +4,15 @@ import de.til7701.javelin.ast.Node;
 import de.til7701.javelin.ast.Script;
 import de.til7701.javelin.ast.Span;
 import de.til7701.javelin.ast.expression.*;
+import de.til7701.javelin.ast.methods.*;
 import de.til7701.javelin.ast.statement.*;
-import de.til7701.javelin.ast.type.CollectionType;
-import de.til7701.javelin.ast.type.GenericType;
-import de.til7701.javelin.ast.type.SimpleType;
-import de.til7701.javelin.ast.type.Type;
+import de.til7701.javelin.ast.type.*;
 import de.til7701.javelin.ast.type_definition.TypeModifier;
 import de.til7701.javelin.ast.type_definition.TypeModifierValue;
 import de.til7701.javelin.ast.type_definition.annotations.AnnotationFieldDefinition;
 import de.til7701.javelin.ast.type_definition.annotations.AnnotationTypeDefinition;
+import de.til7701.javelin.ast.type_definition.annotations.AnnotationUsage;
+import de.til7701.javelin.ast.type_definition.classes.*;
 import de.til7701.javelin.ast.type_definition.enums.EnumTypeDefinition;
 import de.til7701.javelin.ast.type_definition.enums.EnumValueDefinition;
 import de.til7701.javelin.parser.ParserException;
@@ -331,14 +331,18 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
 
     @Override
     public Node visitGenericTypeIdentifier(JavelinParser.GenericTypeIdentifierContext ctx) {
+        return new GenericType(
+                createSpan(ctx),
+                (Type) visit(ctx.typeIdentifier()),
+                constructGenericTypeList(ctx.genericTypeList())
+        );
+    }
+
+    public List<Type> constructGenericTypeList(JavelinParser.GenericTypeListContext ctx) {
         List<Type> typeArguments = new ArrayList<>();
         for (int i = 1; i < ctx.typeIdentifier().size(); i++)
             typeArguments.add((Type) visit(ctx.typeIdentifier(i)));
-        return new GenericType(
-                createSpan(ctx),
-                (Type) visit(ctx.typeIdentifier(0)),
-                Collections.unmodifiableList(typeArguments)
-        );
+        return Collections.unmodifiableList(typeArguments);
     }
 
     @Override
@@ -359,6 +363,172 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
         if (ctx.NATIVE() != null)
             return new TypeModifier(createSpan(ctx), TypeModifierValue.NATIVE);
         throw new ParserException(createSpan(ctx), "Unknown type modifier: " + ctx.getText());
+    }
+
+    @Override
+    public Node visitClassTypeDefinition(JavelinParser.ClassTypeDefinitionContext ctx) {
+        List<TypeModifier> typeModifiers = ctx.typeModifier().stream()
+                .map(tmCtx -> (TypeModifier) visit(tmCtx))
+                .toList();
+        List<Type> superTypes = ctx.typeIdentifier().stream()
+                .map(tiCtx -> (Type) visit(tiCtx))
+                .toList();
+        List<ClassFieldDefinition> fields = ctx.fieldDefinition().stream()
+                .map(cfdCtx -> (ClassFieldDefinition) visit(cfdCtx))
+                .toList();
+        List<ConstructorDefinition> constructors = ctx.constructorDefinition().stream()
+                .map(cdCtx -> (ConstructorDefinition) visit(cdCtx))
+                .toList();
+        List<MethodDefinition> methods = ctx.methodDefinition().stream()
+                .map(mdCtx -> (MethodDefinition) visit(mdCtx))
+                .toList();
+        return new ClassDefinition(
+                createSpan(ctx),
+                typeModifiers,
+                new TypeList(
+                        createSpan(ctx.genericTypeList()),
+                        constructGenericTypeList(ctx.genericTypeList())
+                ),
+                new TypeList(
+                        createSpan(ctx.typeIdentifier(0), ctx.typeIdentifier(ctx.typeIdentifier().size() - 1)),
+                        superTypes
+                ),
+                fields,
+                constructors,
+                methods
+        );
+    }
+
+    @Override
+    public Node visitUninitializedFieldDefinition(JavelinParser.UninitializedFieldDefinitionContext ctx) {
+        List<FieldModifier> fieldModifiers = ctx.fieldModifier().stream()
+                .map(fmCtx -> (FieldModifier) visit(fmCtx))
+                .toList();
+        return new ClassFieldDefinition(
+                createSpan(ctx),
+                fieldModifiers,
+                (Type) visit(ctx.typeIdentifier()),
+                ctx.SymbolIdentifier().getText(),
+                Optional.empty()
+        );
+    }
+
+    @Override
+    public Node visitInitializedFieldDefinition(JavelinParser.InitializedFieldDefinitionContext ctx) {
+        List<FieldModifier> fieldModifiers = ctx.fieldModifier().stream()
+                .map(fmCtx -> (FieldModifier) visit(fmCtx))
+                .toList();
+        return new ClassFieldDefinition(
+                createSpan(ctx),
+                fieldModifiers,
+                (Type) visit(ctx.typeIdentifier()),
+                ctx.SymbolIdentifier().getText(),
+                Optional.of((Expression) visit(ctx.expression()))
+        );
+    }
+
+    @Override
+    public Node visitFieldModifier(JavelinParser.FieldModifierContext ctx) {
+        if (ctx.STATIC() != null)
+            return new FieldModifier(createSpan(ctx), FieldModifierValue.STATIC);
+        if (ctx.MUT() != null)
+            return new FieldModifier(createSpan(ctx), FieldModifierValue.MUT);
+        throw new ParserException(createSpan(ctx), "Unknown field modifier: " + ctx.getText());
+    }
+
+    @Override
+    public Node visitConstructorDefinition(JavelinParser.ConstructorDefinitionContext ctx) {
+        List<AnnotationUsage> annotations = ctx.annotation().stream()
+                .map(auCtx -> (AnnotationUsage) visit(auCtx))
+                .toList();
+        List<MethodModifier> modifiers = ctx.methodModifier().stream()
+                .map(mpCtx -> (MethodModifier) visit(mpCtx))
+                .toList();
+        return new ConstructorDefinition(
+                createSpan(ctx),
+                annotations,
+                modifiers,
+                (MethodParameters) visit(ctx.parametherList()),
+                (Statement) visit(ctx.statement())
+        );
+    }
+
+    @Override
+    public Node visitMethodDefinition(JavelinParser.MethodDefinitionContext ctx) {
+        List<AnnotationUsage> annotations = ctx.annotation().stream()
+                .map(auCtx -> (AnnotationUsage) visit(auCtx))
+                .toList();
+        List<MethodModifier> modifiers = ctx.methodModifier().stream()
+                .map(mpCtx -> (MethodModifier) visit(mpCtx))
+                .toList();
+        Optional<Type> returnType = ctx.typeIdentifier() != null
+                ? Optional.of((Type) visit(ctx.typeIdentifier()))
+                : Optional.empty();
+        return new MethodDefinition(
+                createSpan(ctx),
+                annotations,
+                modifiers,
+                returnType,
+                ctx.SymbolIdentifier().getText(),
+                (MethodParameters) visit(ctx.parametherList()),
+                (Statement) visit(ctx.statement())
+        );
+    }
+
+    @Override
+    public Node visitMethodModifier(JavelinParser.MethodModifierContext ctx) {
+        if (ctx.STATIC() != null)
+            return new MethodModifier(createSpan(ctx), MethodModifierValue.STATIC);
+        if (ctx.NATIVE() != null)
+            return new MethodModifier(createSpan(ctx), MethodModifierValue.NATIVE);
+        if (ctx.PUB() != null)
+            return new MethodModifier(createSpan(ctx), MethodModifierValue.PUB);
+        throw new ParserException(createSpan(ctx), "Unknown method modifier: " + ctx.getText());
+    }
+
+    @Override
+    public Node visitParameter(JavelinParser.ParameterContext ctx) {
+        return new MethodParameter(
+                createSpan(ctx),
+                ctx.MUT() != null,
+                (Type) visit(ctx.typeIdentifier()),
+                ctx.SymbolIdentifier().getText()
+        );
+    }
+
+    @Override
+    public Node visitParametherList(JavelinParser.ParametherListContext ctx) {
+        List<MethodParameter> parameters = ctx.parameter().stream()
+                .map(pCtx -> (MethodParameter) visit(pCtx))
+                .toList();
+        return new MethodParameters(
+                createSpan(ctx),
+                parameters
+        );
+    }
+
+    @Override
+    public Node visitAnnotation(JavelinParser.AnnotationContext ctx) {
+        List<Assignment> values = ctx.elementValuePair().stream()
+                .map(aCtx -> (Assignment) visit(aCtx))
+                .toList();
+        return new AnnotationUsage(
+                createSpan(ctx),
+                (Type) visit(ctx.TypeIdentifier()),
+                values
+        );
+    }
+
+    @Override
+    public Node visitElementValuePair(JavelinParser.ElementValuePairContext ctx) {
+        return new Assignment(
+                createSpan(ctx),
+                new SymbolExpression(
+                        createSpan(ctx, ctx.expression()),
+                        ctx.SymbolIdentifier().getText()
+                ),
+                (Expression) visit(ctx.expression())
+        );
     }
 
     @Override
@@ -415,6 +585,15 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
                 ctx.getStart().getCharPositionInLine(),
                 ctx.getStop().getLine(),
                 ctx.getStop().getCharPositionInLine() + ctx.getStop().getText().length()
+        );
+    }
+
+    private static Span createSpan(ParserRuleContext ctx1, ParserRuleContext ctx2) {
+        return new Span(
+                ctx1.getStart().getLine(),
+                ctx1.getStart().getCharPositionInLine(),
+                ctx2.getStop().getLine(),
+                ctx2.getStop().getCharPositionInLine() + ctx2.getStop().getText().length()
         );
     }
 

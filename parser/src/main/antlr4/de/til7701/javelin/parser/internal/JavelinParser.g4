@@ -65,7 +65,7 @@ binaryOperator
 typeIdentifier
     : TypeIdentifier #simpleTypeIdentifier
     | typeIdentifier LBRACK typeIdentifier RBRACK #collectionTypeIdentifier
-    | typeIdentifier LT (typeIdentifier (COMMA typeIdentifier)*) GT #genericTypeIdentifier
+    | typeIdentifier genericTypeList #genericTypeIdentifier
     ;
 
 typeDefinition
@@ -80,7 +80,11 @@ typeModifier
     ;
 
 classTypeDefinition
-    : typeModifier* CLASS (LT (typeIdentifier (COMMA typeIdentifier)*) GT)? SEMI (EXTENDS TypeIdentifier (COMMA TypeIdentifier)*)? fieldDefinition* constructorDefinition* methodDefinition*
+    : typeModifier* CLASS genericTypeList? SEMI (EXTENDS typeIdentifier (COMMA typeIdentifier)*)? fieldDefinition* constructorDefinition* methodDefinition*
+    ;
+
+genericTypeList
+    : LT (typeIdentifier (COMMA typeIdentifier)*) GT
     ;
 
 fieldDefinition
@@ -94,11 +98,11 @@ fieldModifier
     ;
 
 constructorDefinition
-    : annotation* methodModifier* LPAREN (parameter (COMMA parameter)*)? RPAREN statement
+    : annotation* methodModifier* LPAREN parametherList? RPAREN statement
     ;
 
 methodDefinition
-    : annotation* methodModifier* typeIdentifier? SymbolIdentifier LPAREN (parameter (COMMA parameter)*)? RPAREN (ARROW typeIdentifier)? statement
+    : annotation* methodModifier* typeIdentifier? SymbolIdentifier LPAREN parametherList? RPAREN statement
     ;
 
 methodModifier
@@ -109,6 +113,10 @@ methodModifier
 
 parameter
     : MUT? typeIdentifier SymbolIdentifier
+    ;
+
+parametherList
+    : parameter (COMMA parameter)*
     ;
 
 annotation

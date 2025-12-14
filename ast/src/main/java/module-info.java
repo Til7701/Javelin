@@ -13,4 +13,5 @@ module de.til7701.javelin.ast {
     exports de.til7701.javelin.ast.type_definition.annotations;
     exports de.til7701.javelin.ast.type_definition.enums;
     exports de.til7701.javelin.ast.type_definition.classes;
+    exports de.til7701.javelin.ast.methods;
 }
