@@ -9,9 +9,16 @@ import de.til7701.javelin.ast.type.CollectionType;
 import de.til7701.javelin.ast.type.GenericType;
 import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
+import de.til7701.javelin.ast.type_definition.TypeModifier;
+import de.til7701.javelin.ast.type_definition.TypeModifierValue;
+import de.til7701.javelin.ast.type_definition.annotations.AnnotationFieldDefinition;
+import de.til7701.javelin.ast.type_definition.annotations.AnnotationTypeDefinition;
+import de.til7701.javelin.ast.type_definition.enums.EnumTypeDefinition;
+import de.til7701.javelin.ast.type_definition.enums.EnumValueDefinition;
 import de.til7701.javelin.parser.ParserException;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.jspecify.annotations.NullMarked;
 
@@ -335,6 +342,68 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitTypeDefinition(JavelinParser.TypeDefinitionContext ctx) {
+        if (ctx.classTypeDefinition() != null)
+            return visit(ctx.classTypeDefinition());
+        if (ctx.annotationTypeDefinition() != null)
+            return visit(ctx.annotationTypeDefinition());
+        if (ctx.enumTypeDefinition() != null)
+            return visit(ctx.enumTypeDefinition());
+        throw new ParserException(createSpan(ctx), "Unknown type definition: " + ctx.getText());
+    }
+
+    @Override
+    public Node visitTypeModifier(JavelinParser.TypeModifierContext ctx) {
+        if (ctx.PUB() != null)
+            return new TypeModifier(createSpan(ctx), TypeModifierValue.PUB);
+        if (ctx.NATIVE() != null)
+            return new TypeModifier(createSpan(ctx), TypeModifierValue.NATIVE);
+        throw new ParserException(createSpan(ctx), "Unknown type modifier: " + ctx.getText());
+    }
+
+    @Override
+    public Node visitAnnotationTypeDefinition(JavelinParser.AnnotationTypeDefinitionContext ctx) {
+        List<TypeModifier> typeModifiers = ctx.typeModifier().stream()
+                .map(tmCtx -> (TypeModifier) visit(tmCtx))
+                .toList();
+        List<AnnotationFieldDefinition> fields = ctx.annotationFieldDefinition().stream()
+                .map(afdCtx -> (AnnotationFieldDefinition) visit(afdCtx))
+                .toList();
+        return new AnnotationTypeDefinition(
+                createSpan(ctx),
+                typeModifiers,
+                fields
+        );
+    }
+
+    @Override
+    public Node visitAnnotationFieldDefinition(JavelinParser.AnnotationFieldDefinitionContext ctx) {
+        return new AnnotationFieldDefinition(
+                createSpan(ctx),
+                (Type) visit(ctx.typeIdentifier()),
+                ctx.SymbolIdentifier().getText()
+        );
+    }
+
+    @Override
+    public Node visitEnumTypeDefinition(JavelinParser.EnumTypeDefinitionContext ctx) {
+        List<TypeModifier> typeModifiers = ctx.typeModifier().stream()
+                .map(tmCtx -> (TypeModifier) visit(tmCtx))
+                .toList();
+        List<EnumValueDefinition> values = ctx.EnumValueIdentifier().stream()
+                .map(evCtx -> new EnumValueDefinition(
+                        createSpan(evCtx.getSymbol()),
+                        evCtx.getText()
+                ))
+                .toList();
+        return new EnumTypeDefinition(
+                createSpan(ctx),
+                typeModifiers,
+                values
+        );
+    }
+
+    @Override
     public Node visitErrorNode(ErrorNode node) {
         Span span = createSpan((ParserRuleContext) node.getParent());
         throw new ParserException(span, node.getText());
@@ -346,6 +415,15 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
                 ctx.getStart().getCharPositionInLine(),
                 ctx.getStop().getLine(),
                 ctx.getStop().getCharPositionInLine() + ctx.getStop().getText().length()
+        );
+    }
+
+    private static Span createSpan(Token token) {
+        return new Span(
+                token.getLine(),
+                token.getCharPositionInLine(),
+                token.getLine(),
+                token.getCharPositionInLine() + token.getText().length()
         );
     }
 

@@ -69,9 +69,9 @@ typeIdentifier
     ;
 
 typeDefinition
-    : typeModifier* annotationTypeDefinition
-    | typeModifier* enumTypeDefinition
-    | typeModifier* classTypeDefinition
+    : annotationTypeDefinition
+    | enumTypeDefinition
+    | classTypeDefinition
     ;
 
 typeModifier
@@ -79,20 +79,8 @@ typeModifier
     | PUB
     ;
 
-annotationTypeDefinition
-    : ANNOTATION SEMI annotationFieldDefinition*
-    ;
-
-annotationFieldDefinition
-    : typeIdentifier SymbolIdentifier SEMI
-    ;
-
-enumTypeDefinition
-    : ENUM SEMI EnumValueIdentifier (COMMA EnumValueIdentifier)* COMMA?
-    ;
-
 classTypeDefinition
-    : CLASS (LT (typeIdentifier (COMMA typeIdentifier)*) GT)? SEMI (EXTENDS TypeIdentifier (COMMA TypeIdentifier)*)? fieldDefinition* constructorDefinition* methodDefinition*
+    : typeModifier* CLASS (LT (typeIdentifier (COMMA typeIdentifier)*) GT)? SEMI (EXTENDS TypeIdentifier (COMMA TypeIdentifier)*)? fieldDefinition* constructorDefinition* methodDefinition*
     ;
 
 fieldDefinition
@@ -129,4 +117,16 @@ annotation
 
 elementValuePair
     : SymbolIdentifier ASSIGN expression
+    ;
+
+annotationTypeDefinition
+    : typeModifier* ANNOTATION SEMI annotationFieldDefinition*
+    ;
+
+annotationFieldDefinition
+    : typeIdentifier SymbolIdentifier SEMI
+    ;
+
+enumTypeDefinition
+    : typeModifier* ENUM SEMI EnumValueIdentifier (COMMA EnumValueIdentifier)* COMMA?
     ;
