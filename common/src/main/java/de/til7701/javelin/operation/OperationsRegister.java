@@ -1,12 +1,13 @@
-package de.til7701.javelin.core.reflect;
+package de.til7701.javelin.operation;
 
-import de.til7701.javelin.core.ast.BinaryOperator;
-import de.til7701.javelin.core.util.Java;
-import picocli.CommandLine;
+import de.til7701.javelin.ast.expression.BinaryOperator;
+import de.til7701.javelin.ast.type.Type;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.util.*;
 
+@Slf4j
 public class OperationsRegister {
 
     private final Map<BinaryOperator, Map<Type, Map<Type, Operation>>> binaryOperations = new EnumMap<>(BinaryOperator.class);
@@ -51,7 +52,7 @@ public class OperationsRegister {
                 .computeIfAbsent(operator, _ -> new HashMap<>())
                 .computeIfAbsent(ops.leftType(), _ -> new HashMap<>())
                 .put(ops.rightType(), ops);
-        CommandLine.tracer().debug("Registered binary operation: " + operator + " for types " + ops.leftType() + ", " + ops.rightType() + " -> " + ops.resultType());
+        log.debug("Registered binary operation: " + operator + " for types " + ops.leftType() + ", " + ops.rightType() + " -> " + ops.resultType());
     }
 
     public Optional<Operation> getBinaryOperation(BinaryOperator operator, Type leftType, Type rightType) {

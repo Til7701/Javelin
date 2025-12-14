@@ -1,4 +1,4 @@
-package de.til7701.javelin.core.reflect;
+package de.til7701.javelin.klass;
 
 import java.util.HashMap;
 import java.util.Map;

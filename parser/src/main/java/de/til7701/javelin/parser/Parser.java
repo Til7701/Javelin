@@ -8,16 +8,23 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.jspecify.annotations.NullMarked;
 
 import java.io.File;
 import java.io.IOException;
 
-@NullMarked
-public class FileParser {
+public class Parser {
 
-    public Ast parse(File file) throws IOException {
+    public Ast parseFile(File file) throws IOException {
         CharStream charStream = CharStreams.fromFileName(file.getAbsolutePath());
+        return parse(charStream);
+    }
+
+    public Ast parseString(String content) {
+        CharStream charStream = CharStreams.fromString(content);
+        return parse(charStream);
+    }
+
+    public Ast parse(CharStream charStream) {
         JavelinLexer lexer = new JavelinLexer(charStream);
         CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
 

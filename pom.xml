@@ -12,6 +12,7 @@
     <modules>
         <module>ast</module>
         <module>parser</module>
+        <module>common</module>
         <module>type_checker</module>
         <module>cli</module>
     </modules>

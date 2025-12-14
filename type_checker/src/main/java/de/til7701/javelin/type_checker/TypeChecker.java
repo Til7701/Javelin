@@ -1,5 +1,8 @@
 package de.til7701.javelin.type_checker;
 
+import de.til7701.javelin.ast.Ast;
+import de.til7701.javelin.ast.expression.Expression;
+import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.core.ast.*;
 import de.til7701.javelin.core.environment.Environment;
 import de.til7701.javelin.core.reflect.*;

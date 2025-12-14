@@ -346,6 +346,23 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitGenericTypeList(JavelinParser.GenericTypeListContext ctx) {
+        List<Type> typeArguments = constructGenericTypeList(ctx);
+        return new TypeList(
+                createSpan(ctx),
+                typeArguments
+        );
+    }
+
+    @Override
+    public Node visitITypeIdentifier(JavelinParser.ITypeIdentifierContext ctx) {
+        return new IType(
+                createSpan(ctx),
+                Integer.parseInt(ctx.getText().substring(1, ctx.getText().length() - 1))
+        );
+    }
+
+    @Override
     public Node visitTypeDefinition(JavelinParser.TypeDefinitionContext ctx) {
         if (ctx.classTypeDefinition() != null)
             return visit(ctx.classTypeDefinition());
@@ -514,7 +531,10 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
                 .toList();
         return new AnnotationUsage(
                 createSpan(ctx),
-                (Type) visit(ctx.TypeIdentifier()),
+                new SimpleType(
+                        createSpan(ctx.TypeIdentifier().getSymbol()),
+                        ctx.TypeIdentifier().getText()
+                ),
                 values
         );
     }

@@ -6,6 +6,7 @@ module de.til7701.javelin.parser {
     requires org.slf4j;
     requires org.antlr.antlr4.runtime;
     requires org.jspecify;
+    requires de.til7701.javelin.parser;
 
     exports de.til7701.javelin.parser;
 }

@@ -66,6 +66,7 @@ typeIdentifier
     : TypeIdentifier #simpleTypeIdentifier
     | typeIdentifier LBRACK typeIdentifier RBRACK #collectionTypeIdentifier
     | typeIdentifier genericTypeList #genericTypeIdentifier
+    | ITypeIdentifier #iTypeIdentifier
     ;
 
 typeDefinition

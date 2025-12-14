@@ -1,6 +1,9 @@
-package de.til7701.javelin.core.environment;
+package de.til7701.javelin.environment;
 
 import de.til7701.javelin.core.reflect.*;
+import de.til7701.javelin.klass.KlassLoader;
+import de.til7701.javelin.klass.KlassRegister;
+import de.til7701.javelin.operation.OperationsRegister;
 import lombok.Getter;
 
 import java.nio.file.Files;

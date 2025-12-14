@@ -73,7 +73,8 @@ StringLiteral : '"' ( ~["\\] | '\\' . )* '"';
 BooleanLiteral : 'true' | 'false';
 
 EnumValueIdentifier : [A-Z][A-Z_]*;
-TypeIdentifier: [A-Z][a-zA-Z0-9]*;
+ITypeIdentifier : 'I' [0-9]+;
+TypeIdentifier : [A-Z][a-zA-Z0-9]*;
 SymbolIdentifier : [a-z][a-zA-Z_0-9]*;
 
 WS: [ \t\r\n\u000C]+ -> skip;

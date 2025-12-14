@@ -1,12 +1,19 @@
-package de.til7701.javelin.core.reflect;
+package de.til7701.javelin.klass;
 
-import de.til7701.javelin.core.util.Java;
-import picocli.CommandLine;
+import de.til7701.javelin.ast.type.Type;
+import de.til7701.javelin.ast.type_definition.TypeDefinition;
+import de.til7701.javelin.ast.type_definition.TypeModifierValue;
+import de.til7701.javelin.ast.type_definition.annotations.AnnotationTypeDefinition;
+import de.til7701.javelin.ast.type_definition.classes.ClassDefinition;
+import de.til7701.javelin.ast.type_definition.enums.EnumTypeDefinition;
+import de.til7701.javelin.ast.type_definition.enums.EnumValueDefinition;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
 
+@Slf4j
 public class KlassLoader {
 
     public Klass loadJavaClass(Class<?> javaClass) {
@@ -14,7 +21,7 @@ public class KlassLoader {
         Map<String, List<Metod>> methods = loadJavaMethods(javaClass);
         methods = Collections.unmodifiableMap(methods);
         Klass klass = new Klass(className, methods);
-        CommandLine.tracer().debug(String.format("Loaded Klass: %s", klass));
+        log.debug(String.format("Loaded Klass: %s", klass));
         return klass;
     }
 
@@ -62,6 +69,39 @@ public class KlassLoader {
             entry.setValue(Collections.unmodifiableList(entry.getValue()));
         }
         return metods;
+    }
+
+    public Klass loadKlassFromAst(String klassName, TypeDefinition typeDefinition) {
+        return switch (typeDefinition) {
+            case ClassDefinition classDefinition -> loadKlassFromClassDefinition(classDefinition);
+            case AnnotationTypeDefinition annotationTypeDefinition ->
+                    loadKlassFromAnnotationTypeDefinition(annotationTypeDefinition);
+            case EnumTypeDefinition enumTypeDefinition ->
+                    loadKlassFromEnumTypeDefinition(klassName, enumTypeDefinition);
+        };
+    }
+
+    private Klass loadKlassFromClassDefinition(ClassDefinition classDefinition) {
+        // TODO implement
+        return null;
+    }
+
+    private Klass loadKlassFromAnnotationTypeDefinition(AnnotationTypeDefinition annotationTypeDefinition) {
+        // TODO implement
+        return null;
+    }
+
+    private Klass loadKlassFromEnumTypeDefinition(String klassName, EnumTypeDefinition enumTypeDefinition) {
+        List<String> values = enumTypeDefinition.values().stream()
+                .map(EnumValueDefinition::name)
+                .toList();
+        return new EnumKlass(
+                enumTypeDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.PUB),
+                enumTypeDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.NATIVE),
+                klassName,
+                values,
+                List.of()
+        );
     }
 
 }
