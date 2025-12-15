@@ -1,5 +1,5 @@
-mut i32 a = 5;
-str b = "Hello, Conum!";
+mut I32 a = 5;
+Str b = "Hello, Javelin!";
 
 IO.println();
 
@@ -19,10 +19,10 @@ IO.println(a);
 
 IO.println(b[2]);
 
-i32[] arr = [1, 2, 3, 4, 5];
+I32[I32] arr = Array<I32, I32>(1, 2, 3, 4, 5);
 IO.println(arr[2]);
 
-mut i32 i = 0;
+mut I32 i = 0;
 while i < 5 {
 //while i < arr.size() {
     //IO.println(arr[i]);
@@ -38,9 +38,9 @@ while i < 5 {
 
 IO.println("Matrix elements:");
 
-/*mut i32 i = 0;
+/*mut I32 i = 0;
 while i < matrix.size() {
-    mut i32 j = 0;
+    mut I32 j = 0;
     while j < matrix[i].size() {
         IO.print(matrix[i][j]);
         j = j + 1;

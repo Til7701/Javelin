@@ -1,5 +1,8 @@
 package de.til7701.javelin.klass;
 
+import de.til7701.javelin.ast.methods.MethodParameter;
+import de.til7701.javelin.ast.type.GenericType;
+import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.ast.type_definition.TypeDefinition;
 import de.til7701.javelin.ast.type_definition.TypeModifierValue;
@@ -71,7 +74,7 @@ public class KlassLoader {
 
     public Klass loadKlassFromAst(String klassName, TypeDefinition typeDefinition) {
         return switch (typeDefinition) {
-            case ClassDefinition classDefinition -> loadKlassFromClassDefinition(classDefinition);
+            case ClassDefinition classDefinition -> loadKlassFromClassDefinition(klassName, classDefinition);
             case AnnotationTypeDefinition annotationTypeDefinition ->
                     loadKlassFromAnnotationTypeDefinition(klassName, annotationTypeDefinition);
             case EnumTypeDefinition enumTypeDefinition ->
@@ -79,9 +82,52 @@ public class KlassLoader {
         };
     }
 
-    private Klass loadKlassFromClassDefinition(ClassDefinition classDefinition) {
-        // TODO implement
-        return null;
+    private Klass loadKlassFromClassDefinition(String klassName, ClassDefinition classDefinition) {
+        Type klassType = new SimpleType(classDefinition.span(), klassName);
+        if (!classDefinition.generics().types().isEmpty())
+            klassType = new GenericType(classDefinition.span(), klassType, classDefinition.generics().types());
+        final Type finalKlassType = klassType;
+        List<KlassField> fields = classDefinition.fields().stream()
+                .map(fieldDefinition -> new KlassField(
+                        fieldDefinition.name(),
+                        fieldDefinition.type()
+                ))
+                .toList();
+        List<JavelinConstructor> constructors = classDefinition.constructors().stream()
+                .map(constructorDefinition -> new JavelinConstructor(
+                        klassName,
+                        finalKlassType,
+                        (Type[]) constructorDefinition.parameters().parameters().stream()
+                                .map(MethodParameter::type)
+                                .toArray(),
+                        constructorDefinition.parameters().parameters().stream()
+                                .map(MethodParameter::name)
+                                .toArray(String[]::new),
+                        Optional.of(constructorDefinition.body())
+                ))
+                .toList();
+        List<Metod> methods = classDefinition.methods().stream()
+                .map(methodDefinition -> (Metod) new JavelinMetod(
+                        methodDefinition.name(),
+                        methodDefinition.returnType().orElse(new SimpleType(methodDefinition.span(), "None")),
+                        (Type[]) methodDefinition.parameters().parameters().stream()
+                                .map(MethodParameter::type)
+                                .toArray(),
+                        methodDefinition.parameters().parameters().stream()
+                                .map(MethodParameter::name)
+                                .toArray(String[]::new),
+                        Optional.of(methodDefinition.body())
+                ))
+                .toList();
+        return new JavelinKlass(
+                classDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.PUB),
+                classDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.NATIVE),
+                klassName,
+                fields,
+                constructors,
+                methods,
+                methods.stream().collect(Collectors.groupingBy(Metod::name))
+        );
     }
 
     private Klass loadKlassFromAnnotationTypeDefinition(String klassName, AnnotationTypeDefinition annotationTypeDefinition) {
