@@ -7,26 +7,29 @@ import de.til7701.javelin.ast.type_definition.annotations.AnnotationTypeDefiniti
 import de.til7701.javelin.ast.type_definition.classes.ClassDefinition;
 import de.til7701.javelin.ast.type_definition.enums.EnumTypeDefinition;
 import de.til7701.javelin.ast.type_definition.enums.EnumValueDefinition;
+import de.til7701.javelin.util.Java;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class KlassLoader {
 
     public Klass loadJavaClass(Class<?> javaClass) {
         String className = javaClass.getSimpleName();
-        Map<String, List<Metod>> methods = loadJavaMethods(javaClass);
-        methods = Collections.unmodifiableMap(methods);
-        Klass klass = new Klass(className, methods);
-        log.debug(String.format("Loaded Klass: %s", klass));
+        List<Metod> methods = loadJavaMethods(javaClass);
+        Map<String, List<Metod>> methodsGroupedByName = methods.stream()
+                .collect(Collectors.groupingBy(Metod::name));
+        Klass klass = new JavaKlass(true, false, javaClass, className, methods, methodsGroupedByName);
+        log.debug("Loaded Klass: {}", klass);
         return klass;
     }
 
-    private Map<String, List<Metod>> loadJavaMethods(Class<?> javaClass) {
-        Map<String, List<Metod>> metods = new HashMap<>();
+    private List<Metod> loadJavaMethods(Class<?> javaClass) {
+        List<Metod> metods = new ArrayList<>();
 
         Method[] javaMethods = javaClass.getDeclaredMethods();
         for (Method javaMethod : javaMethods) {
@@ -41,7 +44,7 @@ public class KlassLoader {
                     .map(p -> {
                         try {
                             return Java.mapTypes(p);
-                        } catch (Exception e) {
+                        } catch (Exception _) {
                             return null;
                         }
                     })
@@ -61,21 +64,16 @@ public class KlassLoader {
                     javaMethod.getParameterTypes(),
                     parameterNames
             );
-            metods.computeIfAbsent(methodName, _ -> new ArrayList<>())
-                    .add(metod);
+            metods.add(metod);
         }
-
-        for (Map.Entry<String, List<Metod>> entry : metods.entrySet()) {
-            entry.setValue(Collections.unmodifiableList(entry.getValue()));
-        }
-        return metods;
+        return Collections.unmodifiableList(metods);
     }
 
     public Klass loadKlassFromAst(String klassName, TypeDefinition typeDefinition) {
         return switch (typeDefinition) {
             case ClassDefinition classDefinition -> loadKlassFromClassDefinition(classDefinition);
             case AnnotationTypeDefinition annotationTypeDefinition ->
-                    loadKlassFromAnnotationTypeDefinition(annotationTypeDefinition);
+                    loadKlassFromAnnotationTypeDefinition(klassName, annotationTypeDefinition);
             case EnumTypeDefinition enumTypeDefinition ->
                     loadKlassFromEnumTypeDefinition(klassName, enumTypeDefinition);
         };
@@ -86,9 +84,27 @@ public class KlassLoader {
         return null;
     }
 
-    private Klass loadKlassFromAnnotationTypeDefinition(AnnotationTypeDefinition annotationTypeDefinition) {
-        // TODO implement
-        return null;
+    private Klass loadKlassFromAnnotationTypeDefinition(String klassName, AnnotationTypeDefinition annotationTypeDefinition) {
+        List<AnnotationField> fields = annotationTypeDefinition.fields().stream()
+                .map(fieldDefinition -> new AnnotationField(
+                        fieldDefinition.name(),
+                        fieldDefinition.type()
+                ))
+                .toList();
+        List<Metod> methods = annotationTypeDefinition.fields().stream()
+                .map(fieldDefinition -> (Metod) new JavelinMetod(
+                        fieldDefinition.name(),
+                        fieldDefinition.type()
+                ))
+                .toList();
+        return new AnnotationKlass(
+                annotationTypeDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.PUB),
+                annotationTypeDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.NATIVE),
+                klassName,
+                fields,
+                methods,
+                methods.stream().collect(Collectors.groupingBy(Metod::name))
+        );
     }
 
     private Klass loadKlassFromEnumTypeDefinition(String klassName, EnumTypeDefinition enumTypeDefinition) {

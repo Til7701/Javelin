@@ -12,9 +12,21 @@ import org.antlr.v4.runtime.CharStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 public class Sdk {
+
+    private static final String[] sdkClassNames = {
+            "Array",
+            "BinaryOp",
+            "BinaryOperator",
+            "Char",
+            "Default",
+            "Getter",
+            "Setter",
+            "Str"
+    };
 
     @Getter
     private final List<Klass> klasses;
@@ -26,16 +38,10 @@ public class Sdk {
     }
 
     private List<Klass> loadDefaultClasses() {
-        return List.of(
-                loadClassFromResource("/sdk/Array.jvl"),
-                loadClassFromResource("/sdk/BinaryOp.jvl"),
-                loadClassFromResource("/sdk/BinaryOperator.jvl"),
-                loadClassFromResource("/sdk/Char.jvl"),
-                loadClassFromResource("/sdk/Default.jvl"),
-                loadClassFromResource("/sdk/Getter.jvl"),
-                loadClassFromResource("/sdk/Setter.jvl"),
-                loadClassFromResource("/sdk/Str.jvl")
-        );
+        return Arrays.stream(sdkClassNames)
+                .map(name -> "/sdk/" + name + ".jvl")
+                .map(this::loadClassFromResource)
+                .toList();
     }
 
     private Klass loadClassFromResource(String resourcePath) {

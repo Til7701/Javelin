@@ -1,6 +1,5 @@
 package de.til7701.javelin.environment;
 
-import de.til7701.javelin.core.reflect.*;
 import de.til7701.javelin.klass.KlassLoader;
 import de.til7701.javelin.klass.KlassRegister;
 import de.til7701.javelin.operation.OperationsRegister;
@@ -14,13 +13,6 @@ public class Environment {
     private static final Class<?>[] DEFAULT_JAVA_CLASSES = new Class<?>[]{
             IO.class,
             Files.class,
-            I16.class,
-            I32.class,
-            Str.class,
-            Bool.class,
-            None.class,
-            Any.class,
-            Collection.class,
     };
 
     private final OperationsRegister operationsRegister = new OperationsRegister();

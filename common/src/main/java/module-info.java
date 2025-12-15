@@ -1,6 +1,7 @@
-module de.til7701.javelin.environment {
-    requires de.til7701.javelin.ast;
+module de.til7701.javelin.common {
     requires static lombok;
+
+    requires de.til7701.javelin.ast;
     requires de.til7701.javelin.parser;
     requires org.antlr.antlr4.runtime;
 

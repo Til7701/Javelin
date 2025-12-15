@@ -7,6 +7,8 @@ import de.til7701.javelin.interpreter.variables.BoolVariable;
 import de.til7701.javelin.interpreter.variables.CollectionVariable;
 import de.til7701.javelin.interpreter.variables.I32Variable;
 import de.til7701.javelin.interpreter.variables.StrVariable;
+import de.til7701.javelin.klass.KlassRegister;
+import de.til7701.javelin.operation.OperationsRegister;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;

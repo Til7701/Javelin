@@ -2,6 +2,7 @@ package de.til7701.javelin.operation;
 
 import de.til7701.javelin.ast.expression.BinaryOperator;
 import de.til7701.javelin.ast.type.Type;
+import de.til7701.javelin.util.Java;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
