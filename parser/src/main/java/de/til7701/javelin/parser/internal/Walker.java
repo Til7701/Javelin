@@ -13,8 +13,6 @@ import de.til7701.javelin.ast.type_definition.annotations.AnnotationFieldDefinit
 import de.til7701.javelin.ast.type_definition.annotations.AnnotationTypeDefinition;
 import de.til7701.javelin.ast.type_definition.annotations.AnnotationUsage;
 import de.til7701.javelin.ast.type_definition.classes.*;
-import de.til7701.javelin.ast.type_definition.enums.EnumTypeDefinition;
-import de.til7701.javelin.ast.type_definition.enums.EnumValueDefinition;
 import de.til7701.javelin.parser.ParserException;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -62,7 +60,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitVariableInitialization(JavelinParser.VariableInitializationContext ctx) {
         return new VariableInitialization(
                 createSpan(ctx),
-                ctx.MUT() != null,
                 (Type) visit(ctx.typeIdentifier()),
                 ctx.SymbolIdentifier().getText(),
                 (Expression) visit(ctx.expression())
@@ -84,20 +81,10 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitWhileStatement(JavelinParser.WhileStatementContext ctx) {
+    public Node visitWhenStatement(JavelinParser.WhenStatementContext ctx) {
         return new WhenStatement(
                 createSpan(ctx),
-                (Expression) visit(ctx.expression()),
-                (Statement) visit(ctx.statement())
-        );
-    }
-
-    @Override
-    public Node visitForeachStatement(JavelinParser.ForeachStatementContext ctx) {
-        return new ForeachStatement(
-                createSpan(ctx),
-                (Type) visit(ctx.typeIdentifier()),
-                ctx.SymbolIdentifier().getText(),
+                ctx.DO() != null,
                 (Expression) visit(ctx.expression()),
                 (Statement) visit(ctx.statement())
         );
@@ -112,34 +99,24 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitBreakStatement(JavelinParser.BreakStatementContext ctx) {
-        return new BreakStatement(
-                createSpan(ctx)
-        );
-    }
-
-    @Override
-    public Node visitContinueStatement(JavelinParser.ContinueStatementContext ctx) {
-        return new ContinueStatement(
-                createSpan(ctx)
-        );
-    }
-
-    @Override
-    public Node visitIfStatement(JavelinParser.IfStatementContext ctx) {
-        return new IfStatement(
+    public Node visitUnsignedIntegerLiteralExpression(JavelinParser.UnsignedIntegerLiteralExpressionContext ctx) {
+        String literal = ctx.UnsignedIntegerLiteral().getText();
+        String[] split = literal.split("U", 2);
+        return new UnsignedIntegerLiteralExpression(
                 createSpan(ctx),
-                (Expression) visit(ctx.expression()),
-                (Statement) visit(ctx.statement(0)),
-                ctx.ELSE() != null ? Optional.of((Statement) visit(ctx.statement(1))) : Optional.empty()
+                Long.parseLong(split[0]),
+                Long.parseLong(split[1])
         );
     }
 
     @Override
-    public Node visitIntegerLiteralExpression(JavelinParser.IntegerLiteralExpressionContext ctx) {
-        return new SignedIntegerLiteralExpression(
+    public Node visitSignedIntegerLiteralExpression(JavelinParser.SignedIntegerLiteralExpressionContext ctx) {
+        String literal = ctx.SignedIntegerLiteral().getText();
+        String[] split = literal.split("I", 2);
+        return new UnsignedIntegerLiteralExpression(
                 createSpan(ctx),
-                ctx.IntegerLiteral().getText()
+                Long.parseLong(split[0]),
+                Long.parseLong(split[1])
         );
     }
 
@@ -295,18 +272,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitEnumValueExpression(JavelinParser.EnumValueExpressionContext ctx) {
-        return new EnumValueAccess(
-                createSpan(ctx),
-                new SimpleType(
-                        createSpan(ctx),
-                        ctx.TypeIdentifier().getText()
-                ),
-                ctx.EnumValueIdentifier().getText()
-        );
-    }
-
-    @Override
     public Node visitTypeCastExpression(JavelinParser.TypeCastExpressionContext ctx) {
         return new TypeCastExpression(
                 createSpan(ctx),
@@ -337,7 +302,7 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
         return new GenericType(
                 createSpan(ctx),
                 (Type) visit(ctx.typeIdentifier()),
-                constructGenericTypeList(ctx.genericTypeList())
+                (TypeList) visitGenericTypeList(ctx.genericTypeList())
         );
     }
 
@@ -360,21 +325,11 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitITypeIdentifier(JavelinParser.ITypeIdentifierContext ctx) {
-        return new IType(
-                createSpan(ctx),
-                Integer.parseInt(ctx.getText().substring(1, ctx.getText().length()))
-        );
-    }
-
-    @Override
     public Node visitTypeDefinition(JavelinParser.TypeDefinitionContext ctx) {
         if (ctx.classTypeDefinition() != null)
             return visit(ctx.classTypeDefinition());
         if (ctx.annotationTypeDefinition() != null)
             return visit(ctx.annotationTypeDefinition());
-        if (ctx.enumTypeDefinition() != null)
-            return visit(ctx.enumTypeDefinition());
         throw new ParserException(createSpan(ctx), "Unknown type definition: " + ctx.getText());
     }
 
@@ -382,8 +337,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitTypeModifier(JavelinParser.TypeModifierContext ctx) {
         if (ctx.PUB() != null)
             return new TypeModifier(createSpan(ctx), TypeModifierValue.PUB);
-        if (ctx.NATIVE() != null)
-            return new TypeModifier(createSpan(ctx), TypeModifierValue.NATIVE);
         throw new ParserException(createSpan(ctx), "Unknown type modifier: " + ctx.getText());
     }
 
@@ -391,9 +344,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitClassTypeDefinition(JavelinParser.ClassTypeDefinitionContext ctx) {
         List<TypeModifier> typeModifiers = ctx.typeModifier().stream()
                 .map(tmCtx -> (TypeModifier) visit(tmCtx))
-                .toList();
-        List<Type> superTypes = ctx.typeIdentifier().stream()
-                .map(tiCtx -> (Type) visit(tiCtx))
                 .toList();
         List<ClassFieldDefinition> fields = ctx.fieldDefinition().stream()
                 .map(cfdCtx -> (ClassFieldDefinition) visit(cfdCtx))
@@ -414,9 +364,8 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
                         constructGenericTypeList(ctx.genericTypeList())
                 ),
                 new TypeList(
-                        superTypes.isEmpty() ? new Span(-1, -1, -1, -1) :
-                                createSpan(ctx.typeIdentifier(0), ctx.typeIdentifier(ctx.typeIdentifier().size() - 1)),
-                        superTypes
+                        new Span(-1, -1, -1, -1),
+                        List.of()
                 ),
                 fields,
                 constructors,
@@ -456,8 +405,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitFieldModifier(JavelinParser.FieldModifierContext ctx) {
         if (ctx.STATIC() != null)
             return new FieldModifier(createSpan(ctx), FieldModifierValue.STATIC);
-        if (ctx.MUT() != null)
-            return new FieldModifier(createSpan(ctx), FieldModifierValue.MUT);
         throw new ParserException(createSpan(ctx), "Unknown field modifier: " + ctx.getText());
     }
 
@@ -508,8 +455,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitMethodModifier(JavelinParser.MethodModifierContext ctx) {
         if (ctx.STATIC() != null)
             return new MethodModifier(createSpan(ctx), MethodModifierValue.STATIC);
-        if (ctx.NATIVE() != null)
-            return new MethodModifier(createSpan(ctx), MethodModifierValue.NATIVE);
         if (ctx.PUB() != null)
             return new MethodModifier(createSpan(ctx), MethodModifierValue.PUB);
         throw new ParserException(createSpan(ctx), "Unknown method modifier: " + ctx.getText());
@@ -519,7 +464,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitParameter(JavelinParser.ParameterContext ctx) {
         return new MethodParameter(
                 createSpan(ctx),
-                ctx.MUT() != null,
                 (Type) visit(ctx.typeIdentifier()),
                 ctx.SymbolIdentifier().getText()
         );
@@ -584,24 +528,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
                 createSpan(ctx),
                 (Type) visit(ctx.typeIdentifier()),
                 ctx.SymbolIdentifier().getText()
-        );
-    }
-
-    @Override
-    public Node visitEnumTypeDefinition(JavelinParser.EnumTypeDefinitionContext ctx) {
-        List<TypeModifier> typeModifiers = ctx.typeModifier().stream()
-                .map(tmCtx -> (TypeModifier) visit(tmCtx))
-                .toList();
-        List<EnumValueDefinition> values = ctx.EnumValueIdentifier().stream()
-                .map(evCtx -> new EnumValueDefinition(
-                        createSpan(evCtx.getSymbol()),
-                        evCtx.getText()
-                ))
-                .toList();
-        return new EnumTypeDefinition(
-                createSpan(ctx),
-                typeModifiers,
-                values
         );
     }
 

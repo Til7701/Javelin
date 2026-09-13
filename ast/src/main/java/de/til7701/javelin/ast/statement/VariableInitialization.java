@@ -6,7 +6,6 @@ import de.til7701.javelin.ast.type.Type;
 
 public record VariableInitialization(
         Span span,
-        boolean isMutable,
         Type type,
         String name,
         Expression value

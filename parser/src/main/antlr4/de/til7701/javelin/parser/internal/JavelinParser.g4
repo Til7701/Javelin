@@ -11,7 +11,7 @@ statement
     | typeIdentifier SymbolIdentifier ASSIGN expression SEMI #variableInitialization
     | expression ASSIGN expression SEMI #assignment
     | expression SEMI #expressionStatement
-    | DO? WHEN expression LBRACE statement RBRACE #whileStatement
+    | DO? WHEN expression LBRACE statement RBRACE #whenStatement
     | RETURN expression? SEMI #returnStatement
     ;
 

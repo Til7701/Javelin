@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 @RequiredArgsConstructor
 public class ErrorListener extends BaseErrorListener {
 
