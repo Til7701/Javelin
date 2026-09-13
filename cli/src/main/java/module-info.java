@@ -6,6 +6,7 @@ module de.til7701.javelin.cli {
     requires de.til7701.javelin.common;
     requires de.til7701.javelin.parser;
     requires de.til7701.javelin.checker;
+    requires de.til7701.javelin.interpreter;
 
     requires info.picocli;
     requires org.slf4j;

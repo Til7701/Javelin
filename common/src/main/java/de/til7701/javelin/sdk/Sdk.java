@@ -21,14 +21,14 @@ import java.util.List;
 public class Sdk {
 
     private static final String[] sdkClassNames = {
-            "Array",
-            "BinaryOp",
-            "BinaryOperator",
-            "Char",
-            "Default",
-            "Getter",
-            "Setter",
-            "Str"
+//            "Array",
+//            "BinaryOp",
+//            "BinaryOperator",
+//            "Char",
+//            "Default",
+//            "Getter",
+//            "Setter",
+//            "Str"
     };
 
     @Getter

@@ -1,4 +1,11 @@
-mut I32 a = 5;
+Boolean a = true;
+a = false;
+
+Boolean b = true;
+a = b;
+b = false;
+
+/*mut I32 a = 5;
 Str b = "Hello, Javelin!";
 
 Io.println();
@@ -36,7 +43,7 @@ while i < 5 {
     {8, 9, 10}
 };*/
 
-Io.println("Matrix elements:");
+//Io.println("Matrix elements:");
 
 /*mut I32 i = 0;
 while i < matrix.size() {

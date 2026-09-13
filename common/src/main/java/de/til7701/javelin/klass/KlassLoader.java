@@ -85,7 +85,7 @@ public class KlassLoader {
     private Klass loadKlassFromClassDefinition(String klassName, ClassDefinition classDefinition) {
         Type klassType = new SimpleType(classDefinition.span(), klassName);
         if (!classDefinition.generics().types().isEmpty())
-            klassType = new GenericType(classDefinition.span(), klassType, classDefinition.generics().types());
+            klassType = new GenericType(classDefinition.span(), klassType, classDefinition.generics());
         final Type finalKlassType = klassType;
         List<KlassField> fields = classDefinition.fields().stream()
                 .map(fieldDefinition -> new KlassField(

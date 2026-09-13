@@ -7,10 +7,12 @@ public interface Variable {
 
     Type type();
 
-    boolean isMutable();
+    void set(Variable variable);
 
-    Object value();
+    /// Creates a shallow copy.
+    Variable copy();
 
-    Variable asMutable();
+    /// Creates a deep clone.
+    Variable clone();
 
 }

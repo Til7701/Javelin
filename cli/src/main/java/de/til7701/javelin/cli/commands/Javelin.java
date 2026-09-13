@@ -6,6 +6,7 @@ import de.til7701.javelin.cli.VersionProvider;
 import de.til7701.javelin.cli.mixins.DebugMixin;
 import de.til7701.javelin.cli.pretty.AstPrettyPrinter;
 import de.til7701.javelin.environment.Environment;
+import de.til7701.javelin.interpreter.Interpreter;
 import de.til7701.javelin.klass.Klass;
 import de.til7701.javelin.parser.Parser;
 import de.til7701.javelin.sdk.Sdk;
@@ -63,8 +64,8 @@ public class Javelin implements Callable<Integer> {
         }
         TypeChecker typeChecker = new TypeChecker(env);
         typeChecker.check(ast);
-//        Interpreter interpreter = new Interpreter(env);
-//        interpreter.interpret(ast);
+        Interpreter interpreter = new Interpreter(env);
+        interpreter.interpret(ast);
         return 0;
     }
 

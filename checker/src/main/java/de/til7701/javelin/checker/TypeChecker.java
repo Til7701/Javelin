@@ -32,7 +32,7 @@ public class TypeChecker {
     public void check(Ast ast) {
         context = new ScopeStack();
         context.push(new Scope());
-
+        // TODO
     }
 
     private void check(Statement statement) {
@@ -52,14 +52,6 @@ public class TypeChecker {
             }
             case InstanceMethodCall instanceMethodCall -> checkInstanceMethodCall(instanceMethodCall);
             case ConstructorCall constructorCall -> {
-            }
-            case BreakStatement breakStatement -> {
-            }
-            case ContinueStatement continueStatement -> {
-            }
-            case ForStatement forStatement -> {
-            }
-            case IfStatement ifStatement -> {
             }
             case ReturnStatement returnStatement -> {
             }

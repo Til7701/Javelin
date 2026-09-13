@@ -6,4 +6,9 @@ public record Span(
         int endLine,
         int endCol
 ) {
+
+    public static Span undefined() {
+        return new Span(-1, -1, -1, -1);
+    }
+
 }
