@@ -2,8 +2,9 @@ package de.til7701.javelin.ast.expression;
 
 import de.til7701.javelin.ast.Span;
 
-public record IntegerLiteralExpression(
+public record FloatLiteralExpression(
         Span span,
-        String value
+        long value,
+        long bitCount
 ) implements Expression {
 }

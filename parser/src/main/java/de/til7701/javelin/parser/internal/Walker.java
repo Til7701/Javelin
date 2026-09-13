@@ -85,7 +85,7 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
 
     @Override
     public Node visitWhileStatement(JavelinParser.WhileStatementContext ctx) {
-        return new WhileStatement(
+        return new WhenStatement(
                 createSpan(ctx),
                 (Expression) visit(ctx.expression()),
                 (Statement) visit(ctx.statement())
@@ -137,7 +137,7 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
 
     @Override
     public Node visitIntegerLiteralExpression(JavelinParser.IntegerLiteralExpressionContext ctx) {
-        return new IntegerLiteralExpression(
+        return new SignedIntegerLiteralExpression(
                 createSpan(ctx),
                 ctx.IntegerLiteral().getText()
         );

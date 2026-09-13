@@ -13,5 +13,8 @@ public enum BinaryOperator {
     EQ,
     NEQ,
     COLLECTION_ACCESS,
+    AND,
+    OR,
+    IMPL,
 
 }

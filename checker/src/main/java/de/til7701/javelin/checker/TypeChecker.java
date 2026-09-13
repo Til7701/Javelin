@@ -45,10 +45,10 @@ public class TypeChecker {
                 statementList.statements().forEach(this::check);
                 context.pop();
             }
-            case WhileStatement whileStatement -> {
-                Expression condition = whileStatement.condition();
+            case WhenStatement whenStatement -> {
+                Expression condition = whenStatement.condition();
                 Type conditionType = evaluateExpressionType(condition);
-                check(whileStatement.body());
+                check(whenStatement.body());
             }
             case InstanceMethodCall instanceMethodCall -> checkInstanceMethodCall(instanceMethodCall);
             case ConstructorCall constructorCall -> {

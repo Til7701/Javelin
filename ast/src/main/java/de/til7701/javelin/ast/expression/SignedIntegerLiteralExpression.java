@@ -1,11 +1,10 @@
 package de.til7701.javelin.ast.expression;
 
 import de.til7701.javelin.ast.Span;
-import de.til7701.javelin.ast.type.Type;
 
-public record EnumValueAccess(
+public record SignedIntegerLiteralExpression(
         Span span,
-        Type type,
-        String valueName
+        long value,
+        long bitCount
 ) implements Expression {
 }

@@ -1,5 +1,11 @@
 lexer grammar JavelinLexer;
 
+NEXT: 'next';
+PREVIOUS: 'previous';
+WHEN: 'when';
+LET: 'let';
+DO: 'do';
+NEW: 'new';
 MUT: 'mut';
 WHILE: 'while';
 STATIC: 'static';
@@ -43,6 +49,7 @@ GE         : '>=';
 NOTEQUAL   : '!=';
 AND        : '&&';
 OR         : '||';
+IMPL         : '==>';
 HASH       : '#';
 INC        : '++';
 DEC        : '--';
@@ -68,15 +75,16 @@ MOD_ASSIGN     : '%=';
 
 AT : '@';
 
-IntegerLiteral : [0-9]+;
+SignedIntegerLiteral : [0-9]+ 'I' [0-9]+;
+UnsignedIntegerLiteral : [0-9]+ 'U' [0-9]+;
+FloatLiteral : [0-9]+ 'F' [0-9]+;
 StringLiteral : '"' ( ~["\\] | '\\' . )* '"';
 BooleanLiteral : 'true' | 'false';
 
-EnumValueIdentifier : [A-Z][A-Z_]+;
-ITypeIdentifier : 'I' [0-9]+;
 TypeIdentifier : [A-Z][a-zA-Z0-9]*;
 SymbolIdentifier : [a-z][a-zA-Z_0-9]*;
 
 WS: [ \t\r\n\u000C]+ -> skip;
-COMMENT: '/*' .*? '*/' -> skip;
+MULTI_LINE_COMMENT: '/*' .*? '*/' -> skip;
+DOC_COMMENT: '///' ~[\r\n]* -> skip;
 LINE_COMMENT: '//' ~[\r\n]* -> skip;

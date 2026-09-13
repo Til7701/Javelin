@@ -8,19 +8,17 @@ compilationUnit : (statement* | typeDefinition) EOF;
 
 statement
     : LBRACE statement* RBRACE #statementList
-    | MUT? typeIdentifier SymbolIdentifier ASSIGN expression SEMI #variableInitialization
+    | typeIdentifier SymbolIdentifier ASSIGN expression SEMI #variableInitialization
     | expression ASSIGN expression SEMI #assignment
     | expression SEMI #expressionStatement
-    | WHILE expression statement #whileStatement
-    | FOR typeIdentifier SymbolIdentifier IN expression statement #foreachStatement
+    | DO? WHEN expression LBRACE statement RBRACE #whileStatement
     | RETURN expression? SEMI #returnStatement
-    | BREAK SEMI #breakStatement
-    | CONTINUE SEMI #continueStatement
-    | IF expression statement (ELSE statement)? #ifStatement
     ;
 
 expression
-    : IntegerLiteral #integerLiteralExpression
+    : SignedIntegerLiteral #signedIntegerLiteralExpression
+    | UnsignedIntegerLiteral #unsignedIntegerLiteralExpression
+    | FloatLiteral #floatLiteralExpression
     | StringLiteral #stringLiteralExpression
     | BooleanLiteral #booleanLiteralExpression
     | SymbolIdentifier #symbolIdentifierExpression
@@ -32,8 +30,8 @@ expression
     | expression binaryOperator expression #binaryOperationExpression
     | LPAREN expression RPAREN #parenExpression
     | expression LBRACK expression RBRACK #collectionAccess
-    | TypeIdentifier DOT EnumValueIdentifier #enumValueExpression
     | expression AS typeIdentifier #typeCastExpression
+    | NEW expression #newExpression
     ;
 
 leftUnaryOperator
@@ -60,32 +58,32 @@ binaryOperator
     | GE
     | EQUAL
     | NOTEQUAL
+    | AND
+    | OR
+    | IMPL
     ;
 
 typeIdentifier
     : TypeIdentifier #simpleTypeIdentifier
     | typeIdentifier LBRACK typeIdentifier RBRACK #collectionTypeIdentifier
     | typeIdentifier genericTypeList #genericTypeIdentifier
-    | ITypeIdentifier #iTypeIdentifier
     ;
 
 typeDefinition
     : annotationTypeDefinition
-    | enumTypeDefinition
     | classTypeDefinition
     ;
 
 typeModifier
-    : NATIVE
-    | PUB
+    : PUB
     ;
 
 classTypeDefinition
-    : typeModifier* CLASS genericTypeList? SEMI (EXTENDS typeIdentifier (COMMA typeIdentifier)* SEMI)? fieldDefinition* constructorDefinition* methodDefinition*
+    : typeModifier* CLASS genericTypeList? SEMI fieldDefinition* constructorDefinition* methodDefinition*
     ;
 
 genericTypeList
-    : LT (typeIdentifier (COMMA typeIdentifier)*) GT
+    : LT typeIdentifier (COMMA typeIdentifier)* GT
     ;
 
 fieldDefinition
@@ -95,7 +93,6 @@ fieldDefinition
 
 fieldModifier
     : STATIC
-    | MUT
     ;
 
 constructorDefinition
@@ -108,12 +105,11 @@ methodDefinition
 
 methodModifier
     : STATIC
-    | NATIVE
     | PUB
     ;
 
 parameter
-    : MUT? typeIdentifier SymbolIdentifier
+    : typeIdentifier SymbolIdentifier
     ;
 
 parametherList
@@ -134,8 +130,4 @@ annotationTypeDefinition
 
 annotationFieldDefinition
     : typeIdentifier SymbolIdentifier SEMI
-    ;
-
-enumTypeDefinition
-    : typeModifier* ENUM SEMI EnumValueIdentifier (COMMA EnumValueIdentifier)* COMMA?
     ;
