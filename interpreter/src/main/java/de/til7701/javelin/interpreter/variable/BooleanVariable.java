@@ -1,4 +1,4 @@
-package de.til7701.javelin.interpreter;
+package de.til7701.javelin.interpreter.variable;
 
 import de.til7701.javelin.ast.Span;
 import de.til7701.javelin.ast.type.SimpleType;
@@ -8,9 +8,9 @@ import lombok.ToString;
 
 @ToString
 @AllArgsConstructor
-public class BooleanVariable implements Variable {
+class BooleanVariable implements Variable {
 
-    private boolean value;
+    protected boolean value;
 
     @Override
     public Type type() {
@@ -26,13 +26,8 @@ public class BooleanVariable implements Variable {
     }
 
     @Override
-    public Variable copy() {
+    public Variable copyRef() {
         return new BooleanVariable(value);
-    }
-
-    @Override
-    public Variable clone() {
-        return this.copy();
     }
 
 }

@@ -1,5 +1,6 @@
 package de.til7701.javelin.interpreter;
 
+import de.til7701.javelin.interpreter.variable.Variable;
 import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 

@@ -2,7 +2,8 @@ package de.til7701.javelin.interpreter;
 
 import module de.til7701.javelin.ast;
 import module de.til7701.javelin.common;
-
+import de.til7701.javelin.interpreter.variable.Variable;
+import de.til7701.javelin.interpreter.variable.VariableFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Objects;
 public class Interpreter {
 
     private final ContextStack context = new ContextStack();
+    private final VariableFactory variableFactory = new VariableFactory();
 
     public Interpreter(Environment environment) {
     }
@@ -26,12 +28,13 @@ public class Interpreter {
             case TypeDefinition _ -> throw new NotImplementedException();
         }
         log.debug("Context: {}", context);
+        log.debug("Literals: {}", variableFactory.literalsToString());
     }
 
     private void executeStatement(Statement statement) {
         switch (statement) {
             case VariableInitialization(_, _, String name, Expression value) ->
-                    context.initializeVariable(name, evaluateExpression(value));
+                    context.initializeVariable(name, evaluateExpression(value).copyRef());
             case Assignment(_, Expression target, Expression value) -> {
                 Variable t = evaluateExpression(target);
                 t.set(evaluateExpression(value));
@@ -48,8 +51,8 @@ public class Interpreter {
 
     private Variable evaluateExpression(Expression expression) {
         return switch (expression) {
-            case BooleanLiteralExpression(_, boolean value) -> new BooleanVariable(value);
-            case StringLiteralExpression(_, String value) -> new StringVariable(value);
+            case BooleanLiteralExpression(_, boolean value) -> variableFactory.fromBoolLiteral(value);
+            case StringLiteralExpression(_, String value) -> variableFactory.fromStrLiteral(value);
             case SymbolExpression(_, String identifier) -> Objects.requireNonNull(context.getVariable(identifier));
             default -> throw new NotImplementedException(expression.toString());
         };

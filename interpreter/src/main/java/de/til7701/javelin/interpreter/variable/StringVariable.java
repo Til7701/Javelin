@@ -1,4 +1,4 @@
-package de.til7701.javelin.interpreter;
+package de.til7701.javelin.interpreter.variable;
 
 import de.til7701.javelin.ast.Span;
 import de.til7701.javelin.ast.type.SimpleType;
@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @ToString
 @AllArgsConstructor
-public class StringVariable implements Variable {
+class StringVariable implements Variable {
 
     private String value;
 
@@ -26,13 +26,8 @@ public class StringVariable implements Variable {
     }
 
     @Override
-    public Variable copy() {
+    public Variable copyRef() {
         return new StringVariable(value);
-    }
-
-    @Override
-    public Variable clone() {
-        return this.copy();
     }
 
 }

@@ -5,6 +5,10 @@ Boolean b = true;
 a = b;
 b = false;
 
+false = true;
+
+Boolean c = false;
+
 /*mut I32 a = 5;
 Str b = "Hello, Javelin!";
 
