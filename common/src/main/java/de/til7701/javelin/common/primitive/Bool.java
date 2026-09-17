@@ -14,4 +14,8 @@ public final class Bool {
         return left && right;
     }
 
+    public static String asStr(boolean value) {
+        return Boolean.toString(value);
+    }
+
 }

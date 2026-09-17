@@ -10,6 +10,7 @@ import lombok.Getter;
 public class Environment {
 
     private static final Class<?>[] PRIMITIVES = new Class<?>[]{
+            Void.class,
             Bool.class,
             Str.class,
     };

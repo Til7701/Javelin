@@ -271,6 +271,8 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
             case "<=" -> BinaryOperator.LTE;
             case ">" -> BinaryOperator.GT;
             case ">=" -> BinaryOperator.GTE;
+            case "&&" -> BinaryOperator.AND;
+            case "||" -> BinaryOperator.OR;
             default -> throw new ParserException(span, "Unexpected value: " + ctx.binaryOperator().getText());
         };
         Expression left = (Expression) visit(ctx.expression(0));

@@ -1,13 +1,17 @@
-Boolean a = true;
+Bool and = true && false;
+
+Io.println(Bool.asStr(and));
+
+Bool a = true;
 a = false;
 
-Boolean b = true;
+Bool b = true;
 a = b;
 b = false;
 
 false = true;
 
-Boolean c = false;
+Bool c = false;
 
 Io.println("Hello World");
 

@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Slf4j
@@ -79,6 +80,21 @@ public class Interpreter {
                 yield switch (method) {
                     case JavaMetod javaMetod -> executeJavaMethod(javaMetod, argumentValues);
                     case JavelinMetod javelinMetod -> executeJavelinMethod(javelinMetod, argumentValues);
+                };
+            }
+            case BinaryExpression(_, Expression left, BinaryOperator binaryOperator, Expression right) -> {
+                Variable leftV = evaluateExpression(left);
+                Variable rightV = evaluateExpression(right);
+                String methodName = binaryOperator.name().toLowerCase(Locale.ROOT);
+                Type type = leftV.type();
+                Klass klass = environment.getKlassRegister().getKlass(type)
+                        .orElseThrow(() -> new RuntimeException("Class not found for type: " + type));
+                Type[] argumentTypes = {leftV.type(), rightV.type()};
+                Metod method = klass.getMethod(methodName, argumentTypes)
+                        .orElseThrow(() -> new RuntimeException("Method: " + methodName + " with args: " + Arrays.deepToString(argumentTypes) + " not found for class: " + klass));
+                yield switch (method) {
+                    case JavaMetod javaMetod -> executeJavaMethod(javaMetod, List.of(leftV, rightV));
+                    case JavelinMetod javelinMetod -> executeJavelinMethod(javelinMetod, List.of(leftV, rightV));
                 };
             }
             default -> throw new NotImplementedException(expression.toString());
