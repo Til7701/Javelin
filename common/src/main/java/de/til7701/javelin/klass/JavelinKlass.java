@@ -8,7 +8,7 @@ public record JavelinKlass(
         boolean isNative,
         String name,
         List<KlassField> fields,
-        List<JavelinConstructor> constructors,
+        List<JavelinMetod> constructors,
         List<Metod> methods,
         Map<String, List<Metod>> methodsGroupedByName
 ) implements Klass {

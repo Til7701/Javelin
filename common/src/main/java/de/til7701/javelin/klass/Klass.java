@@ -6,11 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public sealed interface Klass permits AnnotationKlass, EnumKlass, JavaKlass, JavelinKlass {
+public sealed interface Klass permits JavaKlass, JavelinKlass {
 
     boolean isPub();
-
-    boolean isNative();
 
     String name();
 

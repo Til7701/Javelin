@@ -9,6 +9,8 @@ false = true;
 
 Boolean c = false;
 
+Io.println("Hello World");
+
 /*mut I32 a = 5;
 Str b = "Hello, Javelin!";
 

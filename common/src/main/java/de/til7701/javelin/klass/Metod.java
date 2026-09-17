@@ -2,7 +2,9 @@ package de.til7701.javelin.klass;
 
 import de.til7701.javelin.ast.type.Type;
 
-public sealed interface Metod permits JavaMetod, JavelinConstructor, JavelinMetod {
+public sealed interface Metod permits JavaMetod, JavelinMetod {
+
+    boolean isStatic();
 
     String name();
 

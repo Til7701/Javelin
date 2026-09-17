@@ -12,20 +12,17 @@ import de.til7701.javelin.klass.JavaMetod;
 import de.til7701.javelin.klass.Klass;
 import de.til7701.javelin.klass.KlassRegister;
 import de.til7701.javelin.klass.Metod;
-import de.til7701.javelin.operation.OperationsRegister;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class TypeChecker {
 
-    private final OperationsRegister operationsRegister;
     private final KlassRegister klassRegister;
 
     private ScopeStack context;
 
     public TypeChecker(Environment environment) {
-        this.operationsRegister = environment.getOperationsRegister();
         this.klassRegister = environment.getKlassRegister();
     }
 

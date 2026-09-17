@@ -1,19 +1,18 @@
 package de.til7701.javelin.klass;
 
+import de.til7701.javelin.ast.methods.MethodModifierValue;
 import de.til7701.javelin.ast.methods.MethodParameter;
 import de.til7701.javelin.ast.type.GenericType;
 import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.ast.type_definition.TypeDefinition;
 import de.til7701.javelin.ast.type_definition.TypeModifierValue;
-import de.til7701.javelin.ast.type_definition.annotations.AnnotationTypeDefinition;
 import de.til7701.javelin.ast.type_definition.classes.ClassDefinition;
-import de.til7701.javelin.ast.type_definition.enums.EnumTypeDefinition;
-import de.til7701.javelin.ast.type_definition.enums.EnumValueDefinition;
 import de.til7701.javelin.util.Java;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,7 +25,7 @@ public class KlassLoader {
         List<Metod> methods = loadJavaMethods(javaClass);
         Map<String, List<Metod>> methodsGroupedByName = methods.stream()
                 .collect(Collectors.groupingBy(Metod::name));
-        Klass klass = new JavaKlass(true, false, javaClass, className, methods, methodsGroupedByName);
+        Klass klass = new JavaKlass(true, javaClass, className, methods, methodsGroupedByName);
         log.debug("Loaded Klass: {}", klass);
         return klass;
     }
@@ -36,6 +35,10 @@ public class KlassLoader {
 
         Method[] javaMethods = javaClass.getDeclaredMethods();
         for (Method javaMethod : javaMethods) {
+            if (((javaMethod.getModifiers() & Modifier.PUBLIC) == 0)) {
+                continue;
+            }
+
             String methodName = javaMethod.getName();
             Type returnType;
             try {
@@ -60,6 +63,7 @@ public class KlassLoader {
                     .toArray(String[]::new);
 
             Metod metod = new JavaMetod(
+                    (javaMethod.getModifiers() & Modifier.STATIC) != 0,
                     javaClass,
                     methodName,
                     returnType,
@@ -75,10 +79,7 @@ public class KlassLoader {
     public Klass loadKlassFromAst(String klassName, TypeDefinition typeDefinition) {
         return switch (typeDefinition) {
             case ClassDefinition classDefinition -> loadKlassFromClassDefinition(klassName, classDefinition);
-            case AnnotationTypeDefinition annotationTypeDefinition ->
-                    loadKlassFromAnnotationTypeDefinition(klassName, annotationTypeDefinition);
-            case EnumTypeDefinition enumTypeDefinition ->
-                    loadKlassFromEnumTypeDefinition(klassName, enumTypeDefinition);
+            default -> throw new IllegalStateException("Unexpected value: " + typeDefinition);
         };
     }
 
@@ -93,8 +94,9 @@ public class KlassLoader {
                         fieldDefinition.type()
                 ))
                 .toList();
-        List<JavelinConstructor> constructors = classDefinition.constructors().stream()
-                .map(constructorDefinition -> new JavelinConstructor(
+        List<JavelinMetod> constructors = classDefinition.constructors().stream()
+                .map(constructorDefinition -> new JavelinMetod(
+                        true,
                         klassName,
                         finalKlassType,
                         constructorDefinition.parameters().parameters().stream()
@@ -108,6 +110,7 @@ public class KlassLoader {
                 .toList();
         List<Metod> methods = classDefinition.methods().stream()
                 .map(methodDefinition -> (Metod) new JavelinMetod(
+                        methodDefinition.modifiers().stream().anyMatch(m -> m.value() == MethodModifierValue.STATIC),
                         methodDefinition.name(),
                         methodDefinition.returnType().orElse(new SimpleType(methodDefinition.span(), "None")),
                         methodDefinition.parameters().parameters().stream()
@@ -127,42 +130,6 @@ public class KlassLoader {
                 constructors,
                 methods,
                 methods.stream().collect(Collectors.groupingBy(Metod::name))
-        );
-    }
-
-    private Klass loadKlassFromAnnotationTypeDefinition(String klassName, AnnotationTypeDefinition annotationTypeDefinition) {
-        List<AnnotationField> fields = annotationTypeDefinition.fields().stream()
-                .map(fieldDefinition -> new AnnotationField(
-                        fieldDefinition.name(),
-                        fieldDefinition.type()
-                ))
-                .toList();
-        List<Metod> methods = annotationTypeDefinition.fields().stream()
-                .map(fieldDefinition -> (Metod) new JavelinMetod(
-                        fieldDefinition.name(),
-                        fieldDefinition.type()
-                ))
-                .toList();
-        return new AnnotationKlass(
-                annotationTypeDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.PUB),
-                annotationTypeDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.NATIVE),
-                klassName,
-                fields,
-                methods,
-                methods.stream().collect(Collectors.groupingBy(Metod::name))
-        );
-    }
-
-    private Klass loadKlassFromEnumTypeDefinition(String klassName, EnumTypeDefinition enumTypeDefinition) {
-        List<String> values = enumTypeDefinition.values().stream()
-                .map(EnumValueDefinition::name)
-                .toList();
-        return new EnumKlass(
-                enumTypeDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.PUB),
-                enumTypeDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.NATIVE),
-                klassName,
-                values,
-                List.of()
         );
     }
 

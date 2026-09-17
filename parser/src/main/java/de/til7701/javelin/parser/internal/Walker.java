@@ -29,6 +29,33 @@ import java.util.Optional;
 @NullMarked
 public class Walker extends JavelinParserBaseVisitor<Node> {
 
+    private static Span createSpan(ParserRuleContext ctx) {
+        return new Span(
+                ctx.getStart().getLine(),
+                ctx.getStart().getCharPositionInLine(),
+                ctx.getStop().getLine(),
+                ctx.getStop().getCharPositionInLine() + ctx.getStop().getText().length()
+        );
+    }
+
+    private static Span createSpan(ParserRuleContext ctx1, ParserRuleContext ctx2) {
+        return new Span(
+                ctx1.getStart().getLine(),
+                ctx1.getStart().getCharPositionInLine(),
+                ctx2.getStop().getLine(),
+                ctx2.getStop().getCharPositionInLine() + ctx2.getStop().getText().length()
+        );
+    }
+
+    private static Span createSpan(Token token) {
+        return new Span(
+                token.getLine(),
+                token.getCharPositionInLine(),
+                token.getLine(),
+                token.getCharPositionInLine() + token.getText().length()
+        );
+    }
+
     @Override
     public Node visitCompilationUnit(JavelinParser.CompilationUnitContext ctx) {
         List<JavelinParser.StatementContext> statementContexts = ctx.statement();
@@ -155,8 +182,7 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
         List<Expression> args = ctx.expression().stream()
                 .map(c -> (Expression) visit(c))
                 .toList();
-        Optional<Type> type = Optional.ofNullable(ctx.typeIdentifier())
-                .map(t -> (Type) visit(t));
+        Type type = (Type) visit(ctx.typeIdentifier());
         return new StaticMethodCall(
                 createSpan(ctx),
                 type,
@@ -535,33 +561,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitErrorNode(ErrorNode node) {
         Span span = createSpan((ParserRuleContext) node.getParent());
         throw new ParserException(span, node.getText());
-    }
-
-    private static Span createSpan(ParserRuleContext ctx) {
-        return new Span(
-                ctx.getStart().getLine(),
-                ctx.getStart().getCharPositionInLine(),
-                ctx.getStop().getLine(),
-                ctx.getStop().getCharPositionInLine() + ctx.getStop().getText().length()
-        );
-    }
-
-    private static Span createSpan(ParserRuleContext ctx1, ParserRuleContext ctx2) {
-        return new Span(
-                ctx1.getStart().getLine(),
-                ctx1.getStart().getCharPositionInLine(),
-                ctx2.getStop().getLine(),
-                ctx2.getStop().getCharPositionInLine() + ctx2.getStop().getText().length()
-        );
-    }
-
-    private static Span createSpan(Token token) {
-        return new Span(
-                token.getLine(),
-                token.getCharPositionInLine(),
-                token.getLine(),
-                token.getCharPositionInLine() + token.getText().length()
-        );
     }
 
 }

@@ -5,7 +5,6 @@ import java.util.Map;
 
 public record JavaKlass(
         boolean isPub,
-        boolean isNative,
         Class<?> javaClass,
         String name,
         List<Metod> methods,
