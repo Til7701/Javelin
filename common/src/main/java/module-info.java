@@ -10,9 +10,10 @@ module de.til7701.javelin.common {
     requires org.antlr.antlr4.runtime;
     requires org.jspecify;
 
-    exports de.til7701.javelin.environment;
-    exports de.til7701.javelin.klass;
-    exports de.til7701.javelin.sdk;
+    exports de.til7701.javelin.common.environment;
+    exports de.til7701.javelin.common.klass;
+    exports de.til7701.javelin.common.sdk;
     exports de.til7701.javelin.common;
-    exports de.til7701.javelin.util;
+    exports de.til7701.javelin.common.primitive;
+    exports de.til7701.javelin.common.util;
 }

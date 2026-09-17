@@ -1,4 +1,4 @@
-package de.til7701.javelin.klass;
+package de.til7701.javelin.common.klass;
 
 import de.til7701.javelin.ast.methods.MethodModifierValue;
 import de.til7701.javelin.ast.methods.MethodParameter;
@@ -8,7 +8,7 @@ import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.ast.type_definition.TypeDefinition;
 import de.til7701.javelin.ast.type_definition.TypeModifierValue;
 import de.til7701.javelin.ast.type_definition.classes.ClassDefinition;
-import de.til7701.javelin.util.Java;
+import de.til7701.javelin.common.util.Java;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;

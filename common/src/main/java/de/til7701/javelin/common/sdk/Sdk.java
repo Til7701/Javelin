@@ -1,10 +1,10 @@
-package de.til7701.javelin.sdk;
+package de.til7701.javelin.common.sdk;
 
 import de.til7701.javelin.ast.Ast;
 import de.til7701.javelin.ast.Script;
 import de.til7701.javelin.ast.type_definition.TypeDefinition;
-import de.til7701.javelin.klass.Klass;
-import de.til7701.javelin.klass.KlassLoader;
+import de.til7701.javelin.common.klass.Klass;
+import de.til7701.javelin.common.klass.KlassLoader;
 import de.til7701.javelin.parser.Parser;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

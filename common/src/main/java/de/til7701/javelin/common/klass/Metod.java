@@ -1,4 +1,4 @@
-package de.til7701.javelin.klass;
+package de.til7701.javelin.common.klass;
 
 import de.til7701.javelin.ast.type.Type;
 

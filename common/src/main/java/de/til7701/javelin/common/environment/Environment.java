@@ -1,9 +1,9 @@
-package de.til7701.javelin.environment;
+package de.til7701.javelin.common.environment;
 
-import de.til7701.javelin.klass.KlassLoader;
-import de.til7701.javelin.klass.KlassRegister;
-import de.til7701.javelin.primitive.Bool;
-import de.til7701.javelin.primitive.Str;
+import de.til7701.javelin.common.klass.KlassLoader;
+import de.til7701.javelin.common.klass.KlassRegister;
+import de.til7701.javelin.common.primitive.Bool;
+import de.til7701.javelin.common.primitive.Str;
 import lombok.Getter;
 
 @Getter

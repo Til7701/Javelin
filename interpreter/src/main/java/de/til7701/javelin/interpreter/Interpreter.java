@@ -7,6 +7,8 @@ import de.til7701.javelin.interpreter.variable.Variable;
 import de.til7701.javelin.interpreter.variable.VariableFactory;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -74,15 +76,33 @@ public class Interpreter {
                         .toArray(Type[]::new);
                 Metod method = klass.getMethod(methodName, argumentTypes)
                         .orElseThrow(() -> new RuntimeException("Method: " + methodName + " with args: " + Arrays.deepToString(argumentTypes) + " not found for class: " + klass));
-                return switch (method) {
-                    case JavaMetod javaMetod -> {
-                    }
-                    case JavelinMetod javelinMetod -> {
-                    }
+                yield switch (method) {
+                    case JavaMetod javaMetod -> executeJavaMethod(javaMetod, argumentValues);
+                    case JavelinMetod javelinMetod -> executeJavelinMethod(javelinMetod, argumentValues);
                 };
             }
             default -> throw new NotImplementedException(expression.toString());
         };
+    }
+
+    private Variable executeJavaMethod(JavaMetod javaMetod, List<Variable> argumentValues) {
+        Class<?> clazz = javaMetod.javaClass();
+        Object result;
+        try {
+            Method method = clazz.getMethod(javaMetod.name(), javaMetod.javaParameterClasses());
+            if (javaMetod.isStatic()) {
+                result = method.invoke(null, argumentValues.stream().map(Variable::javaValue).toArray());
+            } else {
+                result = null;
+            }
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        return variableFactory.fromJavaValue(result);
+    }
+
+    private Variable executeJavelinMethod(JavelinMetod javelinMetod, List<Variable> argumentValues) {
+        throw new NotImplementedException();
     }
 
 }

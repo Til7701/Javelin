@@ -13,4 +13,6 @@ public interface Variable {
     /// Creates a shallow copy for primitives and returns this for others.
     Variable copyRef();
 
+    Object javaValue();
+
 }

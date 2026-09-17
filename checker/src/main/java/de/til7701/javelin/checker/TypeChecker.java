@@ -7,11 +7,11 @@ import de.til7701.javelin.ast.expression.InstanceMethodCall;
 import de.til7701.javelin.ast.expression.StaticMethodCall;
 import de.til7701.javelin.ast.statement.*;
 import de.til7701.javelin.ast.type.Type;
-import de.til7701.javelin.environment.Environment;
-import de.til7701.javelin.klass.JavaMetod;
-import de.til7701.javelin.klass.Klass;
-import de.til7701.javelin.klass.KlassRegister;
-import de.til7701.javelin.klass.Metod;
+import de.til7701.javelin.common.environment.Environment;
+import de.til7701.javelin.common.klass.JavaMetod;
+import de.til7701.javelin.common.klass.Klass;
+import de.til7701.javelin.common.klass.KlassRegister;
+import de.til7701.javelin.common.klass.Metod;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,7 +61,7 @@ public class TypeChecker {
     }
 
     private Type checkStaticMethodCall(StaticMethodCall staticMethodCall) {
-        Klass klass = klassRegister.getKlass(staticMethodCall.type().orElseThrow()).orElseThrow();
+        Klass klass = klassRegister.getKlass(staticMethodCall.type()).orElseThrow();
 
         Type[] parameterTypes = staticMethodCall.arguments().stream()
                 .map(this::evaluateExpressionType)
@@ -84,7 +84,7 @@ public class TypeChecker {
         List<Expression> arguments = instanceMethodCall.arguments();
 
         Type instanceType = evaluateExpressionType(instance);
-        Klass klass = klassRegister.getKlass(instanceType.toString()).orElseThrow();
+        Klass klass = klassRegister.getKlass(instanceType).orElseThrow();
         Type[] parameterTypes = arguments.stream()
                 .map(this::evaluateExpressionType)
                 .toArray(Type[]::new);

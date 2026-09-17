@@ -1,12 +1,14 @@
-package de.til7701.javelin.klass;
+package de.til7701.javelin.common.klass;
 
 import java.util.List;
 import java.util.Map;
 
-public record JavaKlass(
+public record JavelinKlass(
         boolean isPub,
-        Class<?> javaClass,
+        boolean isNative,
         String name,
+        List<KlassField> fields,
+        List<JavelinMetod> constructors,
         List<Metod> methods,
         Map<String, List<Metod>> methodsGroupedByName
 ) implements Klass {

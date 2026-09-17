@@ -149,9 +149,10 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
 
     @Override
     public Node visitStringLiteralExpression(JavelinParser.StringLiteralExpressionContext ctx) {
+        String text = ctx.StringLiteral().getText();
         return new StringLiteralExpression(
                 createSpan(ctx),
-                ctx.StringLiteral().getText()
+                text.substring(1, text.length() - 1)
         );
     }
 

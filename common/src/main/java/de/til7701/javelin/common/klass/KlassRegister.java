@@ -1,6 +1,8 @@
-package de.til7701.javelin.klass;
+package de.til7701.javelin.common.klass;
 
+import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
+import de.til7701.javelin.common.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,12 +16,11 @@ public class KlassRegister {
         klasses.put(klass.name(), klass);
     }
 
-    public Optional<Klass> getKlass(String name) {
-        return Optional.ofNullable(klasses.get(name));
-    }
-
     public Optional<Klass> getKlass(Type type) {
-        return Optional.empty();
+        return switch (type) {
+            case SimpleType(_, String name) -> Optional.of(klasses.get(name));
+            default -> throw new NotImplementedException();
+        };
     }
 
 }

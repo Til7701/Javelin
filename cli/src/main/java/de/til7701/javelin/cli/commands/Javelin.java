@@ -5,11 +5,11 @@ import de.til7701.javelin.checker.TypeChecker;
 import de.til7701.javelin.cli.VersionProvider;
 import de.til7701.javelin.cli.mixins.DebugMixin;
 import de.til7701.javelin.cli.pretty.AstPrettyPrinter;
-import de.til7701.javelin.environment.Environment;
+import de.til7701.javelin.common.environment.Environment;
+import de.til7701.javelin.common.klass.Klass;
+import de.til7701.javelin.common.sdk.Sdk;
 import de.til7701.javelin.interpreter.Interpreter;
-import de.til7701.javelin.klass.Klass;
 import de.til7701.javelin.parser.Parser;
-import de.til7701.javelin.sdk.Sdk;
 import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 

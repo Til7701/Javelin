@@ -1,8 +1,7 @@
 package de.til7701.javelin.interpreter.variable;
 
-import de.til7701.javelin.ast.Span;
-import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
+import de.til7701.javelin.common.primitive.Str;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 
@@ -14,7 +13,7 @@ class StringVariable implements Variable {
 
     @Override
     public Type type() {
-        return new SimpleType(Span.undefined(), "String");
+        return Str.TYPE;
     }
 
     @Override
@@ -28,6 +27,11 @@ class StringVariable implements Variable {
     @Override
     public Variable copyRef() {
         return new StringVariable(value);
+    }
+
+    @Override
+    public Object javaValue() {
+        return value;
     }
 
 }

@@ -6,7 +6,7 @@ public final class Io {
     }
 
     public static void println(String line) {
-
+        System.out.println(line);
     }
 
 }

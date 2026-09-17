@@ -1,4 +1,4 @@
-package de.til7701.javelin.primitive;
+package de.til7701.javelin.common.primitive;
 
 import de.til7701.javelin.ast.Span;
 import de.til7701.javelin.ast.type.SimpleType;
