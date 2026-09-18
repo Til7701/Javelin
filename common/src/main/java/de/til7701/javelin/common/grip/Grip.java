@@ -1,4 +1,4 @@
-package de.til7701.javelin.common.sdk;
+package de.til7701.javelin.common.grip;
 
 import de.til7701.javelin.ast.Ast;
 import de.til7701.javelin.ast.Script;
@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public class Sdk {
+public class Grip {
 
     private static final String[] sdkClassNames = {
 //            "Array",
@@ -38,7 +38,7 @@ public class Sdk {
 
     private final KlassLoader klassLoader = new KlassLoader();
 
-    public Sdk() {
+    public Grip() {
         this.klasses = loadDefaultClasses();
     }
 
@@ -50,9 +50,9 @@ public class Sdk {
     }
 
     private Klass loadClassFromResource(String resourcePath) {
-        try (InputStream stream = Sdk.class.getResourceAsStream(resourcePath)) {
+        try (InputStream stream = Grip.class.getResourceAsStream(resourcePath)) {
             if (stream == null) {
-                throw new RuntimeException("Sdk class not found: " + resourcePath);
+                throw new RuntimeException("Grip class not found: " + resourcePath);
             }
             String name = resourcePath.substring(resourcePath.lastIndexOf('/') + 1, resourcePath.length() - 4);
             CharStream charStream = CharStreams.fromStream(stream);
@@ -62,7 +62,7 @@ public class Sdk {
             return switch (ast) {
                 case TypeDefinition typeDef -> klassLoader.loadKlassFromAst(name, typeDef);
                 case Script _ ->
-                        throw new RuntimeException("Expected TypeDefinition, got Script in SDK class: " + resourcePath);
+                        throw new RuntimeException("Expected TypeDefinition, got Script in Grip class: " + resourcePath);
             };
         } catch (IOException e) {
             throw new RuntimeException(e);

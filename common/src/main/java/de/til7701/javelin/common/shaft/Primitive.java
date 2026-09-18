@@ -1,4 +1,4 @@
-package de.til7701.javelin.common.primitive;
+package de.til7701.javelin.common.shaft;
 
 import de.til7701.javelin.ast.type.Type;
 

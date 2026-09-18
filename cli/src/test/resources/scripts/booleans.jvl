@@ -1,0 +1,9 @@
+Bool a = new true;
+Bool b = new false;
+
+Io.println(Bool.asStr(a));
+Io.println(Bool.asStr(a && b));
+
+true = new false;
+
+Io.println(Bool.asStr(a && true));

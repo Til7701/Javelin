@@ -12,6 +12,4 @@ public sealed interface Metod permits JavaMetod, JavelinMetod {
 
     Type[] parameterTypes();
 
-    String[] parameterNames();
-
 }

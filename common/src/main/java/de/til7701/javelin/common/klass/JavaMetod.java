@@ -2,13 +2,14 @@ package de.til7701.javelin.common.klass;
 
 import de.til7701.javelin.ast.type.Type;
 
+import java.lang.reflect.Method;
+
 public record JavaMetod(
         boolean isStatic,
-        Class<?> javaClass,
+        Method javaMethod,
         String name,
         Type returnType,
         Type[] parameterTypes,
-        Class<?>[] javaParameterClasses,
-        String[] parameterNames
+        boolean needsNatives
 ) implements Metod {
 }

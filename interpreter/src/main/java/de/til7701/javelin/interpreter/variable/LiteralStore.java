@@ -1,6 +1,6 @@
 package de.til7701.javelin.interpreter.variable;
 
-import de.til7701.javelin.common.primitive.Bool;
+import de.til7701.javelin.common.shaft.Bool;
 
 import java.util.HashMap;
 import java.util.Map;

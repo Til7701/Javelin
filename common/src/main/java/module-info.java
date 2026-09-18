@@ -12,8 +12,8 @@ module de.til7701.javelin.common {
 
     exports de.til7701.javelin.common.environment;
     exports de.til7701.javelin.common.klass;
-    exports de.til7701.javelin.common.sdk;
+    exports de.til7701.javelin.common.grip;
     exports de.til7701.javelin.common;
-    exports de.til7701.javelin.common.primitive;
+    exports de.til7701.javelin.common.shaft;
     exports de.til7701.javelin.common.util;
 }

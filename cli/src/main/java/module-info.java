@@ -19,4 +19,7 @@ module de.til7701.javelin.cli {
     provides org.slf4j.spi.SLF4JServiceProvider with de.til7701.javelin.cli.log.LoggerServiceProvider;
 
     exports de.til7701.javelin.cli;
+
+    // For tests. Find a way to avoid it in the future.
+    exports de.til7701.javelin.cli.commands to de.til7701.javelin.test;
 }

@@ -2,7 +2,7 @@ package de.til7701.javelin.interpreter;
 
 import de.til7701.javelin.ast.expression.Expression;
 import de.til7701.javelin.ast.statement.Statement;
-import de.til7701.javelin.common.primitive.Bool;
+import de.til7701.javelin.common.shaft.Bool;
 import de.til7701.javelin.interpreter.variable.PrimitiveVariable;
 import de.til7701.javelin.interpreter.variable.Variable;
 

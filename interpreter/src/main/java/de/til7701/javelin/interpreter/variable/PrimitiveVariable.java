@@ -1,7 +1,7 @@
 package de.til7701.javelin.interpreter.variable;
 
 import de.til7701.javelin.ast.type.Type;
-import de.til7701.javelin.common.primitive.Primitive;
+import de.til7701.javelin.common.shaft.Primitive;
 
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;

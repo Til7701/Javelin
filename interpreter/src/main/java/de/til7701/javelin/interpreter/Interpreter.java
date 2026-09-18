@@ -2,7 +2,6 @@ package de.til7701.javelin.interpreter;
 
 import module de.til7701.javelin.ast;
 import module de.til7701.javelin.common;
-import de.til7701.javelin.interpreter.natives.Io;
 import de.til7701.javelin.interpreter.variable.Variable;
 import de.til7701.javelin.interpreter.variable.VariableFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Slf4j
 public class Interpreter {
@@ -21,13 +21,6 @@ public class Interpreter {
 
     public Interpreter(Environment environment) {
         this.environment = environment;
-
-        Class<?>[] natives = {
-                Io.class,
-        };
-        for (Class<?> clazz : natives) {
-            environment.addJavaClass(clazz);
-        }
     }
 
     public void interpret(Ast ast) {
@@ -115,16 +108,19 @@ public class Interpreter {
     }
 
     private Variable executeJavaMethod(JavaMetod javaMetod, List<Variable> argumentValues) {
-        Class<?> clazz = javaMetod.javaClass();
         Object result;
         try {
-            Method method = clazz.getMethod(javaMetod.name(), javaMetod.javaParameterClasses());
-            if (javaMetod.isStatic()) {
-                result = method.invoke(null, argumentValues.stream().map(Variable::javaValue).toArray());
-            } else {
-                result = null;
+            Method method = javaMetod.javaMethod();
+            Object instance = null;
+            if (!javaMetod.isStatic()) {
+                // TODO
             }
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            log.debug(javaMetod.toString());
+            if (javaMetod.needsNatives())
+                result = method.invoke(instance, Stream.concat(Stream.of(environment.getNatives()), argumentValues.stream().map(Variable::javaValue)).toArray());
+            else
+                result = method.invoke(instance, argumentValues.stream().map(Variable::javaValue).toArray());
+        } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
         return variableFactory.fromJavaValue(result);

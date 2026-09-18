@@ -2,10 +2,10 @@ package de.til7701.javelin.interpreter.variable;
 
 import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.common.NotImplementedException;
-import de.til7701.javelin.common.primitive.Array;
-import de.til7701.javelin.common.primitive.Primitive;
-import de.til7701.javelin.common.primitive.Str;
-import de.til7701.javelin.common.primitive.Void;
+import de.til7701.javelin.common.shaft.Array;
+import de.til7701.javelin.common.shaft.Primitive;
+import de.til7701.javelin.common.shaft.Str;
+import de.til7701.javelin.common.shaft.Void;
 import org.jspecify.annotations.Nullable;
 
 public class VariableFactory {

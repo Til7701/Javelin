@@ -10,11 +10,11 @@ import de.til7701.javelin.ast.type_definition.TypeModifierValue;
 import de.til7701.javelin.ast.type_definition.classes.ClassDefinition;
 import de.til7701.javelin.common.util.Ignore;
 import de.til7701.javelin.common.util.Java;
+import de.til7701.javelin.common.util.Natives;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,36 +41,19 @@ public class KlassLoader {
             }
 
             String methodName = javaMethod.getName();
-            Type returnType;
-            try {
-                returnType = Java.mapTypes(javaMethod.getReturnType());
-            } catch (Exception _) {
-                continue; // Skip methods with unsupported return types TODO handle more types
-            }
+            Type returnType = Java.mapTypes(javaMethod.getReturnType());
             Type[] parameterTypes = Arrays.stream(javaMethod.getParameterTypes())
-                    .map(p -> {
-                        try {
-                            return Java.mapTypes(p);
-                        } catch (Exception _) {
-                            return null;
-                        }
-                    })
+                    .filter(c -> !c.equals(Natives.class))
+                    .map(Java::mapTypes)
                     .toArray(Type[]::new);
-            if (Arrays.asList(parameterTypes).contains(null)) {
-                continue; // Skip methods with unsupported parameter types TODO handle more types
-            }
-            String[] parameterNames = Arrays.stream(javaMethod.getParameters())
-                    .map(Parameter::getName)
-                    .toArray(String[]::new);
 
             Metod metod = new JavaMetod(
                     (javaMethod.getModifiers() & Modifier.STATIC) != 0,
-                    javaClass,
+                    javaMethod,
                     methodName,
                     returnType,
                     parameterTypes,
-                    javaMethod.getParameterTypes(),
-                    parameterNames
+                    Arrays.asList(javaMethod.getParameterTypes()).contains(Natives.class)
             );
             metods.add(metod);
         }
