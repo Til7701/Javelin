@@ -26,7 +26,7 @@ public class PrimitiveVariable implements Variable {
     }
 
     @Override
-    public Variable copyRef() {
+    public Variable createNew() {
         return new PrimitiveVariable(value);
     }
 

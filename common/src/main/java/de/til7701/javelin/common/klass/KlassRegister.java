@@ -19,7 +19,7 @@ public class KlassRegister {
     public Optional<Klass> getKlass(Type type) {
         return switch (type) {
             case SimpleType(_, String name) -> Optional.of(klasses.get(name));
-            default -> throw new NotImplementedException();
+            default -> throw new NotImplementedException(type.toString());
         };
     }
 

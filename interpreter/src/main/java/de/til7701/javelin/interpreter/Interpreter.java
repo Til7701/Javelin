@@ -48,7 +48,7 @@ public class Interpreter {
     private void executeStatement(Statement statement) {
         switch (statement) {
             case VariableInitialization(_, _, String name, Expression value) ->
-                    context.initializeVariable(name, evaluateExpression(value).copyRef());
+                    context.initializeVariable(name, evaluateExpression(value));
             case Assignment(_, Expression target, Expression value) -> {
                 Variable t = evaluateExpression(target);
                 t.set(evaluateExpression(value));
@@ -62,6 +62,7 @@ public class Interpreter {
 
     private Variable evaluateExpression(Expression expression) {
         return switch (expression) {
+            case NewExpression(_, Expression e) -> evaluateExpression(e).createNew();
             case BooleanLiteralExpression(_, boolean value) -> variableFactory.fromBoolLiteral(value);
             case StringLiteralExpression(_, String value) -> variableFactory.fromStrLiteral(value);
             case SymbolExpression(_, String identifier) -> Objects.requireNonNull(context.getVariable(identifier));
@@ -96,6 +97,13 @@ public class Interpreter {
                     case JavaMetod javaMetod -> executeJavaMethod(javaMetod, List.of(leftV, rightV));
                     case JavelinMetod javelinMetod -> executeJavelinMethod(javelinMetod, List.of(leftV, rightV));
                 };
+            }
+            case ArrayLiteralCreation(_, List<Expression> values) -> {
+                Variable[] variables = values.stream()
+                        .map(this::evaluateExpression)
+                        .toArray(Variable[]::new);
+                Type elementType = variables[0].type();
+                yield variableFactory.asArray(variables, elementType);
             }
             default -> throw new NotImplementedException(expression.toString());
         };

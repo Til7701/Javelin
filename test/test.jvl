@@ -2,19 +2,23 @@ Bool and = true && false;
 
 Io.println(Bool.asStr(and));
 
-Bool a = true;
-a = false;
+Bool a = new true;
+a = new false;
 
-Bool b = true;
+Bool b = new true;
 a = b;
-b = false;
+b = new false;
 
-false = true;
+false = new true;
 Io.println("Should say true: " + Bool.asStr(false));
 
-Bool c = false;
-
 Io.println("Hello World");
+
+Str[Bool] array = [ "Hello", "World" ];
+Str value = array[true];
+Io.println(value);
+value = "Override";
+Io.println(array[true]);
 
 /*mut I32 a = 5;
 Str b = "Hello, Javelin!";

@@ -4,11 +4,13 @@ import de.til7701.javelin.ast.Span;
 import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.common.util.Ignore;
+import lombok.Getter;
 
 public final class Bool implements Primitive {
 
     public static final SimpleType TYPE = new SimpleType(Span.undefined(), "Bool");
 
+    @Getter(onMethod_ = {@Ignore})
     private final boolean value;
 
     @Ignore

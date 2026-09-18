@@ -12,7 +12,7 @@ public enum BinaryOperator {
     GTE,
     EQ,
     NEQ,
-    COLLECTION_ACCESS,
+    INDEX,
     AND,
     OR,
     IMPL,

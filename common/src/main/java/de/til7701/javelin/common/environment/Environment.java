@@ -2,6 +2,7 @@ package de.til7701.javelin.common.environment;
 
 import de.til7701.javelin.common.klass.KlassLoader;
 import de.til7701.javelin.common.klass.KlassRegister;
+import de.til7701.javelin.common.primitive.Array;
 import de.til7701.javelin.common.primitive.Bool;
 import de.til7701.javelin.common.primitive.Str;
 import lombok.Getter;
@@ -13,6 +14,7 @@ public class Environment {
             Void.class,
             Bool.class,
             Str.class,
+            Array.class,
     };
 
     private final KlassRegister klassRegister = new KlassRegister();

@@ -1,6 +1,8 @@
 package de.til7701.javelin.interpreter.variable;
 
+import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.common.NotImplementedException;
+import de.til7701.javelin.common.primitive.Array;
 import de.til7701.javelin.common.primitive.Primitive;
 import de.til7701.javelin.common.primitive.Str;
 import de.til7701.javelin.common.primitive.Void;
@@ -19,12 +21,17 @@ public class VariableFactory {
         return new PrimitiveVariable(Str.of(value));
     }
 
+    public Variable asArray(Variable[] variables, Type elementType) {
+        return new PrimitiveVariable(Array.of(variables, elementType));
+    }
+
     public String literalsToString() {
         return literalStore.valuesToString();
     }
 
     public Variable fromJavaValue(@Nullable Object result) {
         return switch (result) {
+            case Variable variable -> variable;
             case null -> VOID;
             case Primitive primitive -> new PrimitiveVariable(primitive);
             default -> throw new NotImplementedException(result.getClass().toString());

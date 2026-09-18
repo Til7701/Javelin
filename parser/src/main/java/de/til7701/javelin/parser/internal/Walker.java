@@ -291,11 +291,35 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitArrayCreation(JavelinParser.ArrayCreationContext ctx) {
+        return super.visitArrayCreation(ctx);
+    }
+
+    @Override
+    public Node visitLiteralArrayCreation(JavelinParser.LiteralArrayCreationContext ctx) {
+        List<Expression> expressions = ctx.expression().stream()
+                .map(tree -> (Expression) visit(tree))
+                .toList();
+        return new ArrayLiteralCreation(
+                createSpan(ctx),
+                expressions
+        );
+    }
+
+    @Override
+    public Node visitNewExpression(JavelinParser.NewExpressionContext ctx) {
+        return new NewExpression(
+                createSpan(ctx),
+                (Expression) visit(ctx.expression())
+        );
+    }
+
+    @Override
     public Node visitCollectionAccess(JavelinParser.CollectionAccessContext ctx) {
         return new BinaryExpression(
                 createSpan(ctx),
                 (Expression) visit(ctx.expression(0)),
-                BinaryOperator.COLLECTION_ACCESS,
+                BinaryOperator.INDEX,
                 (Expression) visit(ctx.expression(1))
         );
     }

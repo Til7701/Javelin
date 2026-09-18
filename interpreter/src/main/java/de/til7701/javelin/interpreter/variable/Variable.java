@@ -10,9 +10,7 @@ public interface Variable {
     /// Sets the value of the variable using the given variable with copy semantics
     void set(Variable variable);
 
-    /// Creates a shallow copy for primitives and returns this for others.
-    Variable copyRef();
+    Variable createNew();
 
     Object javaValue();
-
 }

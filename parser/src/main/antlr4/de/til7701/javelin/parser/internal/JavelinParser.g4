@@ -29,6 +29,8 @@ expression
     | expression rightUnaryOperator #rightUnaryOperationExpression
     | expression binaryOperator expression #binaryOperationExpression
     | LPAREN expression RPAREN #parenExpression
+    | LBRACK expression (COMMA expression)* RBRACK #literalArrayCreation
+    | LBRACK expression SEMI expression RBRACK #arrayCreation
     | expression LBRACK expression RBRACK #collectionAccess
     | expression AS typeIdentifier #typeCastExpression
     | NEW expression #newExpression
