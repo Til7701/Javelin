@@ -10,15 +10,15 @@ import java.util.Map;
 
 @ToString
 @EqualsAndHashCode
-class Context {
+class StackFrame {
 
     private final Map<String, Variable> variables;
 
-    Context() {
+    StackFrame() {
         this(new HashMap<>());
     }
 
-    private Context(Map<String, Variable> variables) {
+    private StackFrame(Map<String, Variable> variables) {
         this.variables = variables;
     }
 
@@ -30,9 +30,9 @@ class Context {
         return variables.get(name);
     }
 
-    Context snapshot() {
+    StackFrame snapshot() {
         Map<String, Variable> snapshot = new HashMap<>(variables);
-        return new Context(snapshot);
+        return new StackFrame(snapshot);
     }
 
 }

@@ -16,6 +16,8 @@ public class Interpreter {
 
     private final Environment environment;
     private final VariableFactory variableFactory = new VariableFactory();
+    private final Deque<Interrupt> interruptQueue = new ArrayDeque<>();
+    private boolean executingInterrupt = false;
 
     public Interpreter(Environment environment) {
         this.environment = environment;
@@ -29,8 +31,8 @@ public class Interpreter {
     }
 
     public void interpret(Ast ast) {
-        ContextStack context = new ContextStack();
-        context.push(new Context());
+        Stack context = new Stack();
+        context.push(new StackFrame());
         switch (ast) {
             case Script script -> {
                 List<Statement> statements = script.statements();
@@ -42,7 +44,8 @@ public class Interpreter {
         log.debug("Literals: {}", variableFactory.literalsToString());
     }
 
-    void executeStatement(Statement statement, ContextStack context) {
+    private void executeStatement(Statement statement, Stack context) {
+        handleInterrupts();
         switch (statement) {
             case VariableInitialization(_, _, String name, Expression value) ->
                     context.initializeVariable(name, evaluateExpression(value, context));
@@ -54,7 +57,7 @@ public class Interpreter {
             case StatementList(_, List<Statement> statements) -> statements.forEach(s -> executeStatement(s, context));
             case WhenStatement(_, boolean evalInstantly, Expression condition, Statement body) -> {
                 Set<Variable> topVariables = topVariables(condition, context);
-                ContextStack snapshot = context.snapshot();
+                Stack snapshot = context.snapshot();
                 When when = new When(this, snapshot, condition, body, topVariables);
                 if (evalInstantly) when.eval();
             }
@@ -62,7 +65,7 @@ public class Interpreter {
         }
     }
 
-    Variable evaluateExpression(Expression expression, ContextStack context) {
+    Variable evaluateExpression(Expression expression, Stack context) {
         return switch (expression) {
             case NewExpression(_, Expression e) -> evaluateExpression(e, context).createNew();
             case BooleanLiteralExpression(_, boolean value) -> variableFactory.fromBoolLiteral(value);
@@ -131,7 +134,7 @@ public class Interpreter {
         throw new NotImplementedException();
     }
 
-    private Set<Variable> topVariables(Expression expression, ContextStack context) {
+    private Set<Variable> topVariables(Expression expression, Stack context) {
         return switch (expression) {
             case SymbolExpression(_, String name) -> Set.of(Objects.requireNonNull(context.getVariable(name)));
             case NewExpression _,
@@ -147,6 +150,21 @@ public class Interpreter {
             }
             default -> throw new NotImplementedException(expression.toString());
         };
+    }
+
+    void interrupt(Interrupt item) {
+        this.interruptQueue.addLast(item);
+    }
+
+    private void handleInterrupts() {
+        if (!executingInterrupt) {
+            while (!interruptQueue.isEmpty()) {
+                Interrupt interrupt = this.interruptQueue.pollFirst();
+                executingInterrupt = true;
+                executeStatement(interrupt.unterbrechungsbehandlungsprozedur(), interrupt.stack());
+                executingInterrupt = false;
+            }
+        }
     }
 
 }

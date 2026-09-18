@@ -16,40 +16,40 @@ import java.util.stream.Collector;
 
 @ToString
 @EqualsAndHashCode
-class ContextStack {
+class Stack {
 
-    private final Deque<Context> stack;
+    private final Deque<StackFrame> stack;
 
-    ContextStack() {
+    Stack() {
         this(new ArrayDeque<>());
     }
 
-    private ContextStack(Deque<Context> stack) {
+    private Stack(Deque<StackFrame> stack) {
         this.stack = stack;
     }
 
-    void push(Context context) {
-        stack.push(context);
+    void push(StackFrame stackFrame) {
+        stack.push(stackFrame);
     }
 
-    @Nullable Context pop() {
+    @Nullable StackFrame pop() {
         if (stack.isEmpty())
             return null;
         return stack.pop();
     }
 
     void initializeVariable(String name, Variable variable) {
-        Context context = stack.peek();
-        if (context == null) {
-            context = new Context();
-            push(context);
+        StackFrame stackFrame = stack.peek();
+        if (stackFrame == null) {
+            stackFrame = new StackFrame();
+            push(stackFrame);
         }
-        context.initializeVariable(name, variable);
+        stackFrame.initializeVariable(name, variable);
     }
 
     @Nullable Variable getVariable(String name) {
-        for (Context context : stack) {
-            Variable variable = context.getVariable(name);
+        for (StackFrame stackFrame : stack) {
+            Variable variable = stackFrame.getVariable(name);
             if (variable != null) {
                 return variable;
             }
@@ -57,23 +57,23 @@ class ContextStack {
         return null;
     }
 
-    ContextStack snapshot() {
-        Deque<Context> snapshot = stack.stream()
-                .map(Context::snapshot)
-                .collect(new Collector<Context, ArrayDeque<Context>, Deque<Context>>() {
+    Stack snapshot() {
+        Deque<StackFrame> snapshot = stack.stream()
+                .map(StackFrame::snapshot)
+                .collect(new Collector<StackFrame, ArrayDeque<StackFrame>, Deque<StackFrame>>() {
 
                     @Override
-                    public Supplier<ArrayDeque<Context>> supplier() {
+                    public Supplier<ArrayDeque<StackFrame>> supplier() {
                         return ArrayDeque::new;
                     }
 
                     @Override
-                    public BiConsumer<ArrayDeque<Context>, Context> accumulator() {
+                    public BiConsumer<ArrayDeque<StackFrame>, StackFrame> accumulator() {
                         return ArrayDeque::push;
                     }
 
                     @Override
-                    public BinaryOperator<ArrayDeque<Context>> combiner() {
+                    public BinaryOperator<ArrayDeque<StackFrame>> combiner() {
                         return (left, right) -> {
                             left.addAll(right);
                             return left;
@@ -81,7 +81,7 @@ class ContextStack {
                     }
 
                     @Override
-                    public Function<ArrayDeque<Context>, Deque<Context>> finisher() {
+                    public Function<ArrayDeque<StackFrame>, Deque<StackFrame>> finisher() {
                         return array -> array;
                     }
 
@@ -90,7 +90,7 @@ class ContextStack {
                         return Set.of();
                     }
                 });
-        return new ContextStack(snapshot);
+        return new Stack(snapshot);
     }
 
 }

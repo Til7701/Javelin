@@ -8,16 +8,16 @@ import de.til7701.javelin.interpreter.variable.Variable;
 
 import java.util.Collection;
 
-public class When {
+class When {
 
     private final Interpreter interpreter;
-    private final ContextStack context;
+    private final Stack stack;
     private final Expression condition;
     private final Statement body;
 
-    When(Interpreter interpreter, ContextStack context, Expression condition, Statement body, Collection<Variable> topVariables) {
+    When(Interpreter interpreter, Stack stack, Expression condition, Statement body, Collection<Variable> topVariables) {
         this.interpreter = interpreter;
-        this.context = context;
+        this.stack = stack;
         this.condition = condition;
         this.body = body;
 
@@ -25,11 +25,11 @@ public class When {
     }
 
     void eval() {
-        Variable result = interpreter.evaluateExpression(condition, context);
+        Variable result = interpreter.evaluateExpression(condition, stack);
         if (result instanceof PrimitiveVariable primitiveVariable
                 && primitiveVariable.javaValue() instanceof Bool bool
                 && bool.isValue()) {
-            interpreter.executeStatement(body, context);
+            interpreter.interrupt(new Interrupt(body, stack));
         }
     }
 
