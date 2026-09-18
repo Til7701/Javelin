@@ -8,6 +8,7 @@ import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.ast.type_definition.TypeDefinition;
 import de.til7701.javelin.ast.type_definition.TypeModifierValue;
 import de.til7701.javelin.ast.type_definition.classes.ClassDefinition;
+import de.til7701.javelin.common.util.Ignore;
 import de.til7701.javelin.common.util.Java;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +36,7 @@ public class KlassLoader {
 
         Method[] javaMethods = javaClass.getDeclaredMethods();
         for (Method javaMethod : javaMethods) {
-            if (((javaMethod.getModifiers() & Modifier.PUBLIC) == 0)) {
+            if (((javaMethod.getModifiers() & Modifier.PUBLIC) == 0) || javaMethod.isAnnotationPresent(Ignore.class)) {
                 continue;
             }
 

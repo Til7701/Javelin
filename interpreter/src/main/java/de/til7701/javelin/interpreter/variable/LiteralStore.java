@@ -1,41 +1,20 @@
 package de.til7701.javelin.interpreter.variable;
 
-import lombok.ToString;
+import de.til7701.javelin.common.primitive.Bool;
+
+import java.util.HashMap;
+import java.util.Map;
 
 class LiteralStore {
 
-    private boolean trueValue = true;
-    private boolean falseValue = false;
+    private final Map<Boolean, Variable> booleans = new HashMap<>();
 
     Variable forBool(boolean literal) {
-        if (literal)
-            return new LiteralBoolVariable(true, trueValue);
-        else
-            return new LiteralBoolVariable(false, falseValue);
+        return booleans.computeIfAbsent(literal, key -> new PrimitiveVariable(Bool.of(key)));
     }
 
     public String valuesToString() {
-        return "Bool: [ true = " + trueValue + ", false = " + falseValue + " ]";
-    }
-
-    @ToString
-    private class LiteralBoolVariable extends BooleanVariable {
-
-        private final boolean literal;
-
-        public LiteralBoolVariable(boolean literal, boolean value) {
-            super(value);
-            this.literal = literal;
-        }
-
-        @Override
-        public void set(Variable variable) {
-            super.set(variable);
-            if (literal)
-                trueValue = this.value;
-            else
-                falseValue = this.value;
-        }
+        return "Bool: [ true = " + booleans.get(true) + ", false = " + booleans.get(false) + " ]";
     }
 
 }

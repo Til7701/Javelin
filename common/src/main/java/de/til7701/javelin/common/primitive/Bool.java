@@ -2,20 +2,42 @@ package de.til7701.javelin.common.primitive;
 
 import de.til7701.javelin.ast.Span;
 import de.til7701.javelin.ast.type.SimpleType;
+import de.til7701.javelin.ast.type.Type;
+import de.til7701.javelin.common.util.Ignore;
 
-public final class Bool {
+public final class Bool implements Primitive {
 
     public static final SimpleType TYPE = new SimpleType(Span.undefined(), "Bool");
 
-    private Bool() {
+    private final boolean value;
+
+    @Ignore
+    private Bool(boolean value) {
+        this.value = value;
     }
 
-    public static boolean and(boolean left, boolean right) {
-        return left && right;
+    @Ignore
+    public static Bool of(boolean value) {
+        return new Bool(value);
     }
 
-    public static String asStr(boolean value) {
-        return Boolean.toString(value);
+    public static Bool and(Bool left, Bool right) {
+        return of(left.value && right.value);
+    }
+
+    public static Str asStr(Bool value) {
+        return Str.of(Boolean.toString(value.value));
+    }
+
+    @Override
+    public Bool copy() {
+        return of(value);
+    }
+
+    @Ignore
+    @Override
+    public Type type() {
+        return TYPE;
     }
 
 }
