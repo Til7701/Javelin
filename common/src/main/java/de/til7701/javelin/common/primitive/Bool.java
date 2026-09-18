@@ -27,6 +27,10 @@ public final class Bool implements Primitive {
         return of(left.value && right.value);
     }
 
+    public static Bool eq(Bool left, Bool right) {
+        return of(left.value == right.value);
+    }
+
     public static Str asStr(Bool value) {
         return Str.of(Boolean.toString(value.value));
     }

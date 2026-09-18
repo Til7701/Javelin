@@ -109,11 +109,16 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
 
     @Override
     public Node visitWhenStatement(JavelinParser.WhenStatementContext ctx) {
+        Statement body;
+        if (ctx.statement() != null)
+            body = (Statement) visit(ctx.statement());
+        else
+            body = (Statement) visit(ctx.statementList());
         return new WhenStatement(
                 createSpan(ctx),
                 ctx.DO() != null,
                 (Expression) visit(ctx.expression()),
-                (Statement) visit(ctx.statement())
+                body
         );
     }
 

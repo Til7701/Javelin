@@ -13,4 +13,7 @@ public interface Variable {
     Variable createNew();
 
     Object javaValue();
+
+    void listen(Runnable onUpdate);
+
 }

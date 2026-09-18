@@ -6,12 +6,13 @@ options {
 
 compilationUnit : (statement* | typeDefinition) EOF;
 
+statementList : LBRACE statement* RBRACE;
+
 statement
-    : LBRACE statement* RBRACE #statementList
-    | typeIdentifier SymbolIdentifier ASSIGN expression SEMI #variableInitialization
+    : typeIdentifier SymbolIdentifier ASSIGN expression SEMI #variableInitialization
     | expression ASSIGN expression SEMI #assignment
     | expression SEMI #expressionStatement
-    | DO? WHEN expression LBRACE statement RBRACE #whenStatement
+    | DO? WHEN expression (statement | statementList) #whenStatement
     | RETURN expression? SEMI #returnStatement
     ;
 

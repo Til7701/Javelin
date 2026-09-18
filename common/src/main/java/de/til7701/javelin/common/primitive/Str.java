@@ -27,6 +27,10 @@ public final class Str implements Primitive {
         return of(left.value + right.value);
     }
 
+    public static Bool eq(Str left, Str right) {
+        return Bool.of(left.value.equals(right.value));
+    }
+
     @Override
     public Str copy() {
         return of(value);

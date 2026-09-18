@@ -9,16 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 public class Interpreter {
 
     private final Environment environment;
-    private final ContextStack context = new ContextStack();
     private final VariableFactory variableFactory = new VariableFactory();
 
     public Interpreter(Environment environment) {
@@ -33,11 +29,12 @@ public class Interpreter {
     }
 
     public void interpret(Ast ast) {
+        ContextStack context = new ContextStack();
         context.push(new Context());
         switch (ast) {
             case Script script -> {
                 List<Statement> statements = script.statements();
-                statements.forEach(this::executeStatement);
+                statements.forEach(statement -> executeStatement(statement, context));
             }
             case TypeDefinition _ -> throw new NotImplementedException();
         }
@@ -45,24 +42,29 @@ public class Interpreter {
         log.debug("Literals: {}", variableFactory.literalsToString());
     }
 
-    private void executeStatement(Statement statement) {
+    void executeStatement(Statement statement, ContextStack context) {
         switch (statement) {
             case VariableInitialization(_, _, String name, Expression value) ->
-                    context.initializeVariable(name, evaluateExpression(value));
+                    context.initializeVariable(name, evaluateExpression(value, context));
             case Assignment(_, Expression target, Expression value) -> {
-                Variable t = evaluateExpression(target);
-                t.set(evaluateExpression(value));
+                Variable t = evaluateExpression(target, context);
+                t.set(evaluateExpression(value, context));
             }
             case ReturnStatement _ -> throw new NotImplementedException();
-            case StatementList(_, List<Statement> statements) -> statements.forEach(this::executeStatement);
-            case WhenStatement _ -> throw new NotImplementedException();
-            case Expression e -> evaluateExpression(e);
+            case StatementList(_, List<Statement> statements) -> statements.forEach(s -> executeStatement(s, context));
+            case WhenStatement(_, boolean evalInstantly, Expression condition, Statement body) -> {
+                Set<Variable> topVariables = topVariables(condition, context);
+                ContextStack snapshot = context.snapshot();
+                When when = new When(this, snapshot, condition, body, topVariables);
+                if (evalInstantly) when.eval();
+            }
+            case Expression e -> evaluateExpression(e, context);
         }
     }
 
-    private Variable evaluateExpression(Expression expression) {
+    Variable evaluateExpression(Expression expression, ContextStack context) {
         return switch (expression) {
-            case NewExpression(_, Expression e) -> evaluateExpression(e).createNew();
+            case NewExpression(_, Expression e) -> evaluateExpression(e, context).createNew();
             case BooleanLiteralExpression(_, boolean value) -> variableFactory.fromBoolLiteral(value);
             case StringLiteralExpression(_, String value) -> variableFactory.fromStrLiteral(value);
             case SymbolExpression(_, String identifier) -> Objects.requireNonNull(context.getVariable(identifier));
@@ -71,7 +73,7 @@ public class Interpreter {
                 Klass klass = environment.getKlassRegister().getKlass(type)
                         .orElseThrow(() -> new RuntimeException("Class not found for type: " + type));
                 List<Variable> argumentValues = arguments.stream()
-                        .map(this::evaluateExpression)
+                        .map((Expression e) -> evaluateExpression(e, context))
                         .toList();
                 Type[] argumentTypes = argumentValues.stream()
                         .map(Variable::type)
@@ -84,8 +86,8 @@ public class Interpreter {
                 };
             }
             case BinaryExpression(_, Expression left, BinaryOperator binaryOperator, Expression right) -> {
-                Variable leftV = evaluateExpression(left);
-                Variable rightV = evaluateExpression(right);
+                Variable leftV = evaluateExpression(left, context);
+                Variable rightV = evaluateExpression(right, context);
                 String methodName = binaryOperator.name().toLowerCase(Locale.ROOT);
                 Type type = leftV.type();
                 Klass klass = environment.getKlassRegister().getKlass(type)
@@ -100,7 +102,7 @@ public class Interpreter {
             }
             case ArrayLiteralCreation(_, List<Expression> values) -> {
                 Variable[] variables = values.stream()
-                        .map(this::evaluateExpression)
+                        .map((Expression e) -> evaluateExpression(e, context))
                         .toArray(Variable[]::new);
                 Type elementType = variables[0].type();
                 yield variableFactory.asArray(variables, elementType);
@@ -127,6 +129,24 @@ public class Interpreter {
 
     private Variable executeJavelinMethod(JavelinMetod javelinMetod, List<Variable> argumentValues) {
         throw new NotImplementedException();
+    }
+
+    private Set<Variable> topVariables(Expression expression, ContextStack context) {
+        return switch (expression) {
+            case SymbolExpression(_, String name) -> Set.of(Objects.requireNonNull(context.getVariable(name)));
+            case NewExpression _,
+                 BooleanLiteralExpression _,
+                 StringLiteralExpression _ -> Set.of(evaluateExpression(expression, context));
+            case BinaryExpression(_, Expression left, _, Expression right) -> {
+                Collection<Variable> l = topVariables(left, context);
+                Collection<Variable> r = topVariables(right, context);
+                Set<Variable> result = new HashSet<>();
+                result.addAll(l);
+                result.addAll(r);
+                yield result;
+            }
+            default -> throw new NotImplementedException(expression.toString());
+        };
     }
 
 }
