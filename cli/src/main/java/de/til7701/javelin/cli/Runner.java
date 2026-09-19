@@ -4,7 +4,7 @@ import de.til7701.javelin.ast.Ast;
 import de.til7701.javelin.checker.TypeChecker;
 import de.til7701.javelin.cli.pretty.AstPrettyPrinter;
 import de.til7701.javelin.common.environment.Environment;
-import de.til7701.javelin.common.grip.Grip;
+import de.til7701.javelin.common.head.Head;
 import de.til7701.javelin.common.klass.Klass;
 import de.til7701.javelin.common.util.Natives;
 import de.til7701.javelin.interpreter.Interpreter;
@@ -39,17 +39,17 @@ public class Runner {
         }
 
         final Environment env = new Environment(new Natives(stdIn, stdOut));
-        Grip grip = new Grip();
+        Head head = new Head();
         if (log.isDebugEnabled()) {
-            List<Ast> asts = grip.getAsts();
+            List<Ast> asts = head.getAsts();
             for (int i = 0; i < asts.size(); i++) {
                 StringBuilder builder = new StringBuilder();
                 AstPrettyPrinter prettyPrinter = new AstPrettyPrinter(builder::append);
                 prettyPrinter.print(asts.get(i), 0);
-                log.debug("Parsed Grip class '{}':\n{}", grip.getKlasses().get(i).name(), builder);
+                log.debug("Parsed Grip class '{}':\n{}", head.getKlasses().get(i).name(), builder);
             }
         }
-        for (Klass klass : grip.getKlasses()) {
+        for (Klass klass : head.getKlasses()) {
             env.getKlassRegister().registerKlass(klass);
         }
         TypeChecker typeChecker = new TypeChecker(env);

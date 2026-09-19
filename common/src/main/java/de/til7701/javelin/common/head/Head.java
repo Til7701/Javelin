@@ -1,4 +1,4 @@
-package de.til7701.javelin.common.grip;
+package de.til7701.javelin.common.head;
 
 import de.til7701.javelin.ast.Ast;
 import de.til7701.javelin.ast.Script;
@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public class Grip {
+public class Head {
 
     private static final String[] sdkClassNames = {
 //            "Array",
@@ -38,7 +38,7 @@ public class Grip {
 
     private final KlassLoader klassLoader = new KlassLoader();
 
-    public Grip() {
+    public Head() {
         this.klasses = loadDefaultClasses();
     }
 
@@ -50,7 +50,7 @@ public class Grip {
     }
 
     private Klass loadClassFromResource(String resourcePath) {
-        try (InputStream stream = Grip.class.getResourceAsStream(resourcePath)) {
+        try (InputStream stream = Head.class.getResourceAsStream(resourcePath)) {
             if (stream == null) {
                 throw new RuntimeException("Grip class not found: " + resourcePath);
             }
