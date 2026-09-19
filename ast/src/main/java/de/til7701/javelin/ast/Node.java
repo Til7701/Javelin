@@ -8,14 +8,11 @@ import de.til7701.javelin.ast.statement.Statement;
 import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.ast.type.TypeList;
 import de.til7701.javelin.ast.type_definition.TypeModifier;
-import de.til7701.javelin.ast.type_definition.annotations.AnnotationFieldDefinition;
-import de.til7701.javelin.ast.type_definition.annotations.AnnotationUsage;
 import de.til7701.javelin.ast.type_definition.classes.ClassFieldDefinition;
 import de.til7701.javelin.ast.type_definition.classes.ConstructorDefinition;
 import de.til7701.javelin.ast.type_definition.classes.FieldModifier;
-import de.til7701.javelin.ast.type_definition.enums.EnumValueDefinition;
 
-public sealed interface Node permits Ast, MethodDefinition, MethodModifier, MethodParameter, MethodParameters, Statement, Type, TypeList, TypeModifier, AnnotationFieldDefinition, AnnotationUsage, ClassFieldDefinition, ConstructorDefinition, FieldModifier, EnumValueDefinition {
+public sealed interface Node permits Ast, MethodDefinition, MethodModifier, MethodParameter, MethodParameters, Statement, Type, TypeList, TypeModifier, ClassFieldDefinition, ConstructorDefinition, FieldModifier {
 
     Span span();
 

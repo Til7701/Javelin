@@ -2,29 +2,21 @@ lexer grammar JavelinLexer;
 
 NEXT: 'next';
 PREVIOUS: 'previous';
+DO: 'do';
 WHEN: 'when';
 LET: 'let';
-DO: 'do';
 NEW: 'new';
-MUT: 'mut';
-WHILE: 'while';
 STATIC: 'static';
-NATIVE: 'native';
 CLASS: 'class';
-ENUM: 'enum';
-ANNOTATION: 'annotation';
 RETURN: 'return';
 BREAK: 'break';
 CONTINUE: 'continue';
 PUB: 'pub';
 GET: 'get';
 SET: 'set';
-IF: 'if';
 ELSE: 'else';
-FOR: 'for';
 AS: 'as';
 EXTENDS: 'extends';
-IN: 'in';
 
 LPAREN : '(';
 RPAREN : ')';
@@ -35,6 +27,7 @@ RBRACK : ']';
 SEMI   : ';';
 COMMA  : ',';
 DOT    : '.';
+COLON      : ':';
 
 ASSIGN     : '=';
 GT         : '>';
@@ -42,14 +35,13 @@ LT         : '<';
 BANG       : '!';
 TILDE      : '~';
 QUESTION   : '?';
-COLON      : ':';
 EQUAL      : '==';
 LE         : '<=';
 GE         : '>=';
 NOTEQUAL   : '!=';
 AND        : '&&';
 OR         : '||';
-IMPL         : '==>';
+IMPL       : '==>';
 HASH       : '#';
 INC        : '++';
 DEC        : '--';
@@ -63,6 +55,7 @@ CARET      : '^';
 MOD        : '%';
 ARROW      : '->';
 COLONCOLON : '::';
+AT         : '@';
 
 ADD_ASSIGN     : '+=';
 SUB_ASSIGN     : '-=';
@@ -72,8 +65,6 @@ AND_ASSIGN     : '&=';
 OR_ASSIGN      : '|=';
 XOR_ASSIGN     : '^=';
 MOD_ASSIGN     : '%=';
-
-AT : '@';
 
 SignedIntegerLiteral : [0-9]+ 'I' [0-9]+;
 UnsignedIntegerLiteral : [0-9]+ 'U' [0-9]+;
@@ -86,5 +77,5 @@ SymbolIdentifier : [a-z][a-zA-Z_0-9]*;
 
 WS: [ \t\r\n\u000C]+ -> skip;
 MULTI_LINE_COMMENT: '/*' .*? '*/' -> skip;
-DOC_COMMENT: '///' ~[\r\n]* -> skip;
+DOC_COMMENT_LINE: '///' ~[\r\n]* -> skip;
 LINE_COMMENT: '//' ~[\r\n]* -> skip;

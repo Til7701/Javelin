@@ -9,9 +9,6 @@ import de.til7701.javelin.ast.statement.*;
 import de.til7701.javelin.ast.type.*;
 import de.til7701.javelin.ast.type_definition.TypeModifier;
 import de.til7701.javelin.ast.type_definition.TypeModifierValue;
-import de.til7701.javelin.ast.type_definition.annotations.AnnotationFieldDefinition;
-import de.til7701.javelin.ast.type_definition.annotations.AnnotationTypeDefinition;
-import de.til7701.javelin.ast.type_definition.annotations.AnnotationUsage;
 import de.til7701.javelin.ast.type_definition.classes.*;
 import de.til7701.javelin.parser.ParserException;
 import lombok.extern.slf4j.Slf4j;
@@ -386,8 +383,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitTypeDefinition(JavelinParser.TypeDefinitionContext ctx) {
         if (ctx.classTypeDefinition() != null)
             return visit(ctx.classTypeDefinition());
-        if (ctx.annotationTypeDefinition() != null)
-            return visit(ctx.annotationTypeDefinition());
         throw new ParserException(createSpan(ctx), "Unknown type definition: " + ctx.getText());
     }
 
@@ -468,15 +463,11 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
 
     @Override
     public Node visitConstructorDefinition(JavelinParser.ConstructorDefinitionContext ctx) {
-        List<AnnotationUsage> annotations = ctx.annotation().stream()
-                .map(auCtx -> (AnnotationUsage) visit(auCtx))
-                .toList();
         List<MethodModifier> modifiers = ctx.methodModifier().stream()
                 .map(mpCtx -> (MethodModifier) visit(mpCtx))
                 .toList();
         return new ConstructorDefinition(
                 createSpan(ctx),
-                annotations,
                 modifiers,
                 ctx.parametherList() == null
                         ? new MethodParameters(createSpan(ctx), Collections.emptyList())
@@ -487,9 +478,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
 
     @Override
     public Node visitMethodDefinition(JavelinParser.MethodDefinitionContext ctx) {
-        List<AnnotationUsage> annotations = ctx.annotation().stream()
-                .map(auCtx -> (AnnotationUsage) visit(auCtx))
-                .toList();
         List<MethodModifier> modifiers = ctx.methodModifier().stream()
                 .map(mpCtx -> (MethodModifier) visit(mpCtx))
                 .toList();
@@ -498,7 +486,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
                 : Optional.empty();
         return new MethodDefinition(
                 createSpan(ctx),
-                annotations,
                 modifiers,
                 returnType,
                 ctx.SymbolIdentifier().getText(),
@@ -535,57 +522,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
         return new MethodParameters(
                 createSpan(ctx),
                 parameters
-        );
-    }
-
-    @Override
-    public Node visitAnnotation(JavelinParser.AnnotationContext ctx) {
-        List<Assignment> values = ctx.elementValuePair().stream()
-                .map(aCtx -> (Assignment) visit(aCtx))
-                .toList();
-        return new AnnotationUsage(
-                createSpan(ctx),
-                new SimpleType(
-                        createSpan(ctx.TypeIdentifier().getSymbol()),
-                        ctx.TypeIdentifier().getText()
-                ),
-                values
-        );
-    }
-
-    @Override
-    public Node visitElementValuePair(JavelinParser.ElementValuePairContext ctx) {
-        return new Assignment(
-                createSpan(ctx),
-                new SymbolExpression(
-                        createSpan(ctx, ctx.expression()),
-                        ctx.SymbolIdentifier().getText()
-                ),
-                (Expression) visit(ctx.expression())
-        );
-    }
-
-    @Override
-    public Node visitAnnotationTypeDefinition(JavelinParser.AnnotationTypeDefinitionContext ctx) {
-        List<TypeModifier> typeModifiers = ctx.typeModifier().stream()
-                .map(tmCtx -> (TypeModifier) visit(tmCtx))
-                .toList();
-        List<AnnotationFieldDefinition> fields = ctx.annotationFieldDefinition().stream()
-                .map(afdCtx -> (AnnotationFieldDefinition) visit(afdCtx))
-                .toList();
-        return new AnnotationTypeDefinition(
-                createSpan(ctx),
-                typeModifiers,
-                fields
-        );
-    }
-
-    @Override
-    public Node visitAnnotationFieldDefinition(JavelinParser.AnnotationFieldDefinitionContext ctx) {
-        return new AnnotationFieldDefinition(
-                createSpan(ctx),
-                (Type) visit(ctx.typeIdentifier()),
-                ctx.SymbolIdentifier().getText()
         );
     }
 

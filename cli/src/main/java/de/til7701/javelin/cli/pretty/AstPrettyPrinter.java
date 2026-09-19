@@ -3,9 +3,7 @@ package de.til7701.javelin.cli.pretty;
 import de.til7701.javelin.ast.Ast;
 import de.til7701.javelin.ast.Script;
 import de.til7701.javelin.ast.statement.Statement;
-import de.til7701.javelin.ast.type_definition.annotations.AnnotationTypeDefinition;
 import de.til7701.javelin.ast.type_definition.classes.ClassDefinition;
-import de.til7701.javelin.ast.type_definition.enums.EnumTypeDefinition;
 
 import java.util.function.Consumer;
 
@@ -31,10 +29,6 @@ public class AstPrettyPrinter {
             }
             case ClassDefinition classDefinition -> {
 
-            }
-            case AnnotationTypeDefinition annotationTypeDefinition -> {
-            }
-            case EnumTypeDefinition enumTypeDefinition -> {
             }
         }
     }

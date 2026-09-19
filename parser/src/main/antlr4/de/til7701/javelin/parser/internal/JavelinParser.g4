@@ -73,8 +73,7 @@ typeIdentifier
     ;
 
 typeDefinition
-    : annotationTypeDefinition
-    | classTypeDefinition
+    : classTypeDefinition
     ;
 
 typeModifier
@@ -90,8 +89,8 @@ genericTypeList
     ;
 
 fieldDefinition
-    : annotation* fieldModifier* typeIdentifier SymbolIdentifier SEMI #uninitializedFieldDefinition
-    | annotation* fieldModifier* typeIdentifier SymbolIdentifier ASSIGN expression SEMI #initializedFieldDefinition
+    : fieldModifier* typeIdentifier SymbolIdentifier SEMI #uninitializedFieldDefinition
+    | fieldModifier* typeIdentifier SymbolIdentifier ASSIGN expression SEMI #initializedFieldDefinition
     ;
 
 fieldModifier
@@ -99,11 +98,11 @@ fieldModifier
     ;
 
 constructorDefinition
-    : annotation* methodModifier* LPAREN parametherList? RPAREN statement
+    : methodModifier* LPAREN parametherList? RPAREN statement
     ;
 
 methodDefinition
-    : annotation* methodModifier* typeIdentifier? SymbolIdentifier LPAREN parametherList? RPAREN statement
+    : methodModifier* typeIdentifier? SymbolIdentifier LPAREN parametherList? RPAREN statement
     ;
 
 methodModifier
@@ -117,20 +116,4 @@ parameter
 
 parametherList
     : parameter (COMMA parameter)*
-    ;
-
-annotation
-    : AT TypeIdentifier (LPAREN (elementValuePair (COMMA elementValuePair)*)? RPAREN)?
-    ;
-
-elementValuePair
-    : SymbolIdentifier ASSIGN expression
-    ;
-
-annotationTypeDefinition
-    : typeModifier* ANNOTATION SEMI annotationFieldDefinition*
-    ;
-
-annotationFieldDefinition
-    : typeIdentifier SymbolIdentifier SEMI
     ;
