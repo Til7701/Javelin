@@ -34,5 +34,4 @@ jobs:
           ./mvnw clean verify --batch-mode --update-snapshots
       - name: Test Reproducibility
         run: |
-          ./mvnw clean install -DskipTests -DskipITs --batch-mode
           ./mvnw clean verify artifact:compare -DskipTests -DskipITs --batch-mode
