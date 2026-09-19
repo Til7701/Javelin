@@ -1,0 +1,6 @@
+let x = true;
+when x == false {
+    Io.println("triggered");
+}
+x = false;
+x = true;

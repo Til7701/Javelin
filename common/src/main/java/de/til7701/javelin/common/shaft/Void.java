@@ -5,9 +5,13 @@ import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.common.util.Ignore;
 
-public class Void implements Primitive {
+@JavelinType(
+        fullyQualifiedJavelinName = Void.JAVELIN_TYPE_NAME
+)
+public final class Void implements Primitive {
 
-    public static final SimpleType TYPE = new SimpleType(Span.undefined(), "Void");
+    static final String JAVELIN_TYPE_NAME = "javelin.shaft.Void";
+    public static final SimpleType TYPE = new SimpleType(Span.undefined(), JAVELIN_TYPE_NAME);
 
     private static final Void INSTANCE = new Void();
 

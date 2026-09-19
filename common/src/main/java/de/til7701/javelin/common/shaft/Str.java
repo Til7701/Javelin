@@ -6,9 +6,13 @@ import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.common.util.Ignore;
 import lombok.Getter;
 
+@JavelinType(
+        fullyQualifiedJavelinName = Str.JAVELIN_TYPE_NAME
+)
 public final class Str implements Primitive {
 
-    public static final SimpleType TYPE = new SimpleType(Span.undefined(), "Str");
+    static final String JAVELIN_TYPE_NAME = "javelin.shaft.Str";
+    public static final SimpleType TYPE = new SimpleType(Span.undefined(), JAVELIN_TYPE_NAME);
 
     @Getter(onMethod_ = {@Ignore})
     private final String value;

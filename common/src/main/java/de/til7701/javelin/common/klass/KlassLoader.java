@@ -8,6 +8,7 @@ import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.ast.type_definition.TypeDefinition;
 import de.til7701.javelin.ast.type_definition.TypeModifierValue;
 import de.til7701.javelin.ast.type_definition.classes.ClassDefinition;
+import de.til7701.javelin.common.shaft.JavelinType;
 import de.til7701.javelin.common.util.Ignore;
 import de.til7701.javelin.common.util.Java;
 import de.til7701.javelin.common.util.Natives;
@@ -22,11 +23,12 @@ import java.util.stream.Collectors;
 public class KlassLoader {
 
     public Klass loadJavaClass(Class<?> javaClass) {
-        String className = javaClass.getSimpleName();
+        JavelinType javelinType = javaClass.getAnnotation(JavelinType.class);
+        String fullyQualifiedJavelinName = javelinType.fullyQualifiedJavelinName();
         List<Metod> methods = loadJavaMethods(javaClass);
         Map<String, List<Metod>> methodsGroupedByName = methods.stream()
                 .collect(Collectors.groupingBy(Metod::name));
-        Klass klass = new JavaKlass(true, javaClass, className, methods, methodsGroupedByName);
+        Klass klass = new JavaKlass(true, javaClass, fullyQualifiedJavelinName, methods, methodsGroupedByName);
         log.debug("Loaded Klass: {}", klass);
         return klass;
     }
@@ -107,6 +109,7 @@ public class KlassLoader {
                 ))
                 .toList();
         return new JavelinKlass(
+                List.of(), // TODO get imports from ast
                 classDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.PUB),
                 classDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.NATIVE),
                 klassName,

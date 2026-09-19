@@ -8,9 +8,13 @@ import de.til7701.javelin.common.util.Ignore;
 
 import java.util.Arrays;
 
-public class Array implements Primitive {
+@JavelinType(
+        fullyQualifiedJavelinName = Array.JAVELIN_TYPE_NAME
+)
+public final class Array implements Primitive {
 
-    public static final SimpleType TYPE = new SimpleType(Span.undefined(), "Array");
+    static final String JAVELIN_TYPE_NAME = "javelin.shaft.Array";
+    public static final SimpleType TYPE = new SimpleType(Span.undefined(), JAVELIN_TYPE_NAME);
 
     private final Object[] value;
     private final CollectionType type;

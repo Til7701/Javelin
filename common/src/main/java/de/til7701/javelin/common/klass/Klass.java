@@ -1,22 +1,31 @@
 package de.til7701.javelin.common.klass;
 
+import de.til7701.javelin.ast.statement.Import;
 import de.til7701.javelin.ast.type.Type;
+import de.til7701.javelin.common.environment.Environment;
+import de.til7701.javelin.common.environment.Imports;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public sealed interface Klass permits JavaKlass, JavelinKlass {
 
+    List<Import> imports();
+
     boolean isPub();
 
-    String name();
+    String fullyQualifiedJavelinName();
 
     List<Metod> methods();
 
     Map<String, List<Metod>> methodsGroupedByName();
 
-    default Optional<Metod> getMethod(String methodName, Type[] argumentTypes) {
+    default Optional<Metod> getMethod(String methodName, Type[] argumentTypes, Environment environment) {
+        Imports imports = environment.getPrimitiveImports();
+        this.imports().forEach(imports::addImport);
+
         List<Metod> metods = methodsGroupedByName().get(methodName);
         if (metods == null) {
             return Optional.empty();
@@ -24,7 +33,9 @@ public sealed interface Klass permits JavaKlass, JavelinKlass {
 
         for (Metod metod : metods) {
             if (metod instanceof JavaMetod javaMetod) {
-                Type[] parameterTypes = javaMetod.parameterTypes();
+                Type[] parameterTypes = Arrays.stream(javaMetod.parameterTypes())
+                        .map(type -> type.mapNames(imports::map))
+                        .toArray(Type[]::new);
                 if (parameterTypes.length != argumentTypes.length) {
                     continue;
                 }

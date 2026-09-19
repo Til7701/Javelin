@@ -46,7 +46,7 @@ public class Runner {
                 StringBuilder builder = new StringBuilder();
                 AstPrettyPrinter prettyPrinter = new AstPrettyPrinter(builder::append);
                 prettyPrinter.print(asts.get(i), 0);
-                log.debug("Parsed Grip class '{}':\n{}", head.getKlasses().get(i).name(), builder);
+                log.debug("Parsed Grip class '{}':\n{}", head.getKlasses().get(i).fullyQualifiedJavelinName(), builder);
             }
         }
         for (Klass klass : head.getKlasses()) {

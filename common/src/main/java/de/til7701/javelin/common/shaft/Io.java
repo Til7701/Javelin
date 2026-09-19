@@ -1,9 +1,18 @@
 package de.til7701.javelin.common.shaft;
 
+import de.til7701.javelin.ast.Span;
+import de.til7701.javelin.ast.type.SimpleType;
+import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.common.util.Ignore;
 import de.til7701.javelin.common.util.Natives;
 
+@JavelinType(
+        fullyQualifiedJavelinName = Io.JAVELIN_TYPE_NAME
+)
 public final class Io {
+
+    static final String JAVELIN_TYPE_NAME = "javelin.shaft.Io";
+    public final Type TYPE = new SimpleType(Span.undefined(), JAVELIN_TYPE_NAME);
 
     @Ignore
     private Io() {

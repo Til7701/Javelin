@@ -19,8 +19,15 @@ public class Interpreter {
     private final Deque<Interrupt> interruptQueue = new ArrayDeque<>();
     private boolean executingInterrupt = false;
 
+    private Imports currentImports;
+
     public Interpreter(Environment environment) {
         this.environment = environment;
+        resetImports();
+    }
+
+    private void resetImports() {
+        currentImports = environment.getPrimitiveImports();
     }
 
     public void interpret(Ast ast) {
@@ -40,6 +47,7 @@ public class Interpreter {
     private void executeStatement(Statement statement, Stack context) {
         handleInterrupts();
         switch (statement) {
+            case Import imp -> currentImports.addImport(imp);
             case VariableInitialization(_, String name, Expression value) ->
                     context.initializeVariable(name, evaluateExpression(value, context));
             case Assignment(_, Expression target, Expression value) -> {
@@ -50,8 +58,9 @@ public class Interpreter {
             case StatementList(_, List<Statement> statements) -> statements.forEach(s -> executeStatement(s, context));
             case WhenStatement(_, boolean evalInstantly, Expression condition, Statement body) -> {
                 Set<Variable> topVariables = topVariables(condition, context);
-                Stack snapshot = context.snapshot();
-                When when = new When(this, snapshot, condition, body, topVariables);
+                Stack stackSnapshot = context.snapshot();
+                Imports importsSnapshot = currentImports.snapshot();
+                When when = new When(this, stackSnapshot, importsSnapshot, condition, body, topVariables);
                 if (evalInstantly) when.eval();
             }
             case Expression e -> evaluateExpression(e, context);
@@ -66,7 +75,7 @@ public class Interpreter {
             case SymbolExpression(_, String identifier) -> Objects.requireNonNull(context.getVariable(identifier));
             case InstanceMethodCall _ -> throw new NotImplementedException();
             case StaticMethodCall(_, Type type, String methodName, List<Expression> arguments) -> {
-                Klass klass = environment.getKlassRegister().getKlass(type)
+                Klass klass = environment.getKlassRegister().getKlass(type, currentImports)
                         .orElseThrow(() -> new RuntimeException("Class not found for type: " + type));
                 List<Variable> argumentValues = arguments.stream()
                         .map((Expression e) -> evaluateExpression(e, context))
@@ -74,7 +83,7 @@ public class Interpreter {
                 Type[] argumentTypes = argumentValues.stream()
                         .map(Variable::type)
                         .toArray(Type[]::new);
-                Metod method = klass.getMethod(methodName, argumentTypes)
+                Metod method = klass.getMethod(methodName, argumentTypes, environment)
                         .orElseThrow(() -> new RuntimeException("Method: " + methodName + " with args: " + Arrays.deepToString(argumentTypes) + " not found for class: " + klass));
                 yield switch (method) {
                     case JavaMetod javaMetod -> executeJavaMethod(javaMetod, argumentValues);
@@ -86,10 +95,10 @@ public class Interpreter {
                 Variable rightV = evaluateExpression(right, context);
                 String methodName = binaryOperator.name().toLowerCase(Locale.ROOT);
                 Type type = leftV.type();
-                Klass klass = environment.getKlassRegister().getKlass(type)
+                Klass klass = environment.getKlassRegister().getKlass(type, currentImports)
                         .orElseThrow(() -> new RuntimeException("Class not found for type: " + type));
                 Type[] argumentTypes = {leftV.type(), rightV.type()};
-                Metod method = klass.getMethod(methodName, argumentTypes)
+                Metod method = klass.getMethod(methodName, argumentTypes, environment)
                         .orElseThrow(() -> new RuntimeException("Method: " + methodName + " with args: " + Arrays.deepToString(argumentTypes) + " not found for class: " + klass));
                 yield switch (method) {
                     case JavaMetod javaMetod -> executeJavaMethod(javaMetod, List.of(leftV, rightV));
@@ -156,9 +165,12 @@ public class Interpreter {
         if (!executingInterrupt) {
             while (!interruptQueue.isEmpty()) {
                 Interrupt interrupt = this.interruptQueue.pollFirst();
+                Imports oldImports = currentImports;
+                currentImports = interrupt.imports();
                 executingInterrupt = true;
                 executeStatement(interrupt.unterbrechungsbehandlungsprozedur(), interrupt.stack());
                 executingInterrupt = false;
+                currentImports = oldImports;
             }
         }
     }

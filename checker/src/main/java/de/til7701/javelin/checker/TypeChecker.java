@@ -54,6 +54,7 @@ public class TypeChecker {
             }
             case Expression expression -> {
             }
+            default -> throw new IllegalStateException("Unexpected value: " + statement);
         }
     }
 
@@ -61,16 +62,16 @@ public class TypeChecker {
     }
 
     private Type checkStaticMethodCall(StaticMethodCall staticMethodCall) {
-        Klass klass = klassRegister.getKlass(staticMethodCall.type()).orElseThrow();
+        Klass klass = klassRegister.getKlass(staticMethodCall.type(), null).orElseThrow();
 
         Type[] parameterTypes = staticMethodCall.arguments().stream()
                 .map(this::evaluateExpressionType)
                 .toArray(Type[]::new);
 
-        Metod metod = klass.getMethod(staticMethodCall.methodName(), parameterTypes).orElseThrow(() ->
+        Metod metod = klass.getMethod(staticMethodCall.methodName(), parameterTypes, null).orElseThrow(() ->
                 new RuntimeException("Method " + staticMethodCall.methodName() + "(" + String.join(", ", Arrays.stream(parameterTypes)
                         .map(Type::toString)
-                        .toArray(String[]::new)) + ") not found in class " + klass.name())
+                        .toArray(String[]::new)) + ") not found in class " + klass.fullyQualifiedJavelinName())
         );
         if (!(metod instanceof JavaMetod)) {
             throw new UnsupportedOperationException();
@@ -84,14 +85,14 @@ public class TypeChecker {
         List<Expression> arguments = instanceMethodCall.arguments();
 
         Type instanceType = evaluateExpressionType(instance);
-        Klass klass = klassRegister.getKlass(instanceType).orElseThrow();
+        Klass klass = klassRegister.getKlass(instanceType, null).orElseThrow();
         Type[] parameterTypes = arguments.stream()
                 .map(this::evaluateExpressionType)
                 .toArray(Type[]::new);
-        Metod metod = klass.getMethod(methodName, parameterTypes).orElseThrow(() ->
+        Metod metod = klass.getMethod(methodName, parameterTypes, null).orElseThrow(() ->
                 new RuntimeException("Method " + methodName + "(" + String.join(", ", Arrays.stream(parameterTypes)
                         .map(Type::toString)
-                        .toArray(String[]::new)) + ") not found in class " + klass.name())
+                        .toArray(String[]::new)) + ") not found in class " + klass.fullyQualifiedJavelinName())
         );
         if (!(metod instanceof JavaMetod)) {
             throw new UnsupportedOperationException();
