@@ -84,7 +84,6 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitVariableInitialization(JavelinParser.VariableInitializationContext ctx) {
         return new VariableInitialization(
                 createSpan(ctx),
-                (Type) visit(ctx.typeIdentifier()),
                 ctx.SymbolIdentifier().getText(),
                 (Expression) visit(ctx.expression())
         );

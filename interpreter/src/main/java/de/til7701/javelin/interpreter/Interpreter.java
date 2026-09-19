@@ -40,7 +40,7 @@ public class Interpreter {
     private void executeStatement(Statement statement, Stack context) {
         handleInterrupts();
         switch (statement) {
-            case VariableInitialization(_, _, String name, Expression value) ->
+            case VariableInitialization(_, String name, Expression value) ->
                     context.initializeVariable(name, evaluateExpression(value, context));
             case Assignment(_, Expression target, Expression value) -> {
                 Variable t = evaluateExpression(target, context);

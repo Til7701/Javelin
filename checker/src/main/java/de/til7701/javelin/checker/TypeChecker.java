@@ -101,9 +101,8 @@ public class TypeChecker {
 
 
     private void checkSymbolInitialization(VariableInitialization variableInitialization) {
-        Type symbolType = variableInitialization.type();
         Type expressionType = evaluateExpressionType(variableInitialization.value());
-        context.initializeVariable(variableInitialization.name(), symbolType);
+        context.initializeVariable(variableInitialization.name(), expressionType);
     }
 
     private Type evaluateExpressionType(Expression value) {

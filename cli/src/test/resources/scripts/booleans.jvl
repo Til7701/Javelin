@@ -1,5 +1,5 @@
-Bool a = new true;
-Bool b = new false;
+let a = new true;
+let b = new false;
 
 Io.println(Bool.asStr(a));
 Io.println(Bool.asStr(a && b));

@@ -9,7 +9,7 @@ compilationUnit : (statement* | typeDefinition) EOF;
 statementList : LBRACE statement* RBRACE;
 
 statement
-    : typeIdentifier SymbolIdentifier ASSIGN expression SEMI #variableInitialization
+    : LET SymbolIdentifier ASSIGN expression SEMI #variableInitialization
     | expression ASSIGN expression SEMI #assignment
     | expression SEMI #expressionStatement
     | DO? WHEN expression (statement | statementList) #whenStatement
