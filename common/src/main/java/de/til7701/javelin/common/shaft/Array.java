@@ -39,11 +39,6 @@ public final class Array implements Primitive {
         return Str.of(Arrays.deepToString(value.value));
     }
 
-    @Override
-    public Array copy() {
-        return of(value, type.elementType());
-    }
-
     @Ignore
     @Override
     public Type type() {

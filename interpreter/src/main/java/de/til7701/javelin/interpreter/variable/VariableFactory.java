@@ -4,6 +4,7 @@ import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.common.NotImplementedException;
 import de.til7701.javelin.common.shaft.*;
 import de.til7701.javelin.common.shaft.Void;
+import de.til7701.javelin.common.util.ints.IN;
 import org.jspecify.annotations.Nullable;
 
 public class VariableFactory {
@@ -19,8 +20,8 @@ public class VariableFactory {
         return new PrimitiveVariable(Str.of(value));
     }
 
-    public Variable fromILiteral(int value) {
-        return new PrimitiveVariable(I.of(value));
+    public Variable fromILiteral(long value, int bitCount) {
+        return new PrimitiveVariable(I.of(IN.of(value, bitCount)));
     }
 
     public Variable asArray(Variable[] variables, Type elementType) {

@@ -39,11 +39,6 @@ public final class Bool implements Primitive {
         return Str.of(Boolean.toString(value.value));
     }
 
-    @Override
-    public Bool copy() {
-        return of(value);
-    }
-
     @Ignore
     @Override
     public Type type() {

@@ -24,11 +24,6 @@ public final class Void implements Primitive {
         return INSTANCE;
     }
 
-    @Override
-    public Void copy() {
-        return of();
-    }
-
     @Ignore
     @Override
     public Type type() {

@@ -16,4 +16,5 @@ module de.til7701.javelin.common {
     exports de.til7701.javelin.common;
     exports de.til7701.javelin.common.shaft;
     exports de.til7701.javelin.common.util;
+    exports de.til7701.javelin.common.util.ints;
 }

@@ -4,6 +4,7 @@ import de.til7701.javelin.ast.Span;
 import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.common.util.Ignore;
+import de.til7701.javelin.common.util.ints.IN;
 import lombok.Getter;
 
 @JavelinType(
@@ -15,29 +16,24 @@ public final class I implements Primitive {
     public static final SimpleType TYPE = new SimpleType(Span.undefined(), JAVELIN_TYPE_NAME);
 
     @Getter(onMethod_ = {@Ignore})
-    private final int value;
+    private final IN value;
 
     @Ignore
-    private I(int value) {
+    private I(IN value) {
         this.value = value;
     }
 
     @Ignore
-    public static I of(int value) {
+    public static I of(IN value) {
         return new I(value);
     }
 
     public static I add(I left, I right) {
-        return of(left.value + right.value);
+        return of(IN.add(left.value, right.value));
     }
 
     public static Str asStr(I value) {
-        return Str.of(Integer.toString(value.value));
-    }
-
-    @Override
-    public I copy() {
-        return of(value);
+        return Str.of(value.value.toString());
     }
 
     @Ignore

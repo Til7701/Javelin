@@ -35,11 +35,6 @@ public final class Str implements Primitive {
         return Bool.of(left.value.equals(right.value));
     }
 
-    @Override
-    public Str copy() {
-        return of(value);
-    }
-
     @Ignore
     @Override
     public Type type() {

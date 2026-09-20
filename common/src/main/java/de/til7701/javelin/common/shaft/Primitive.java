@@ -4,8 +4,6 @@ import de.til7701.javelin.ast.type.Type;
 
 public sealed interface Primitive permits Array, Bool, I, Str, Void {
 
-    Primitive copy();
-
     Type type();
 
 }
