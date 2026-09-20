@@ -32,6 +32,10 @@ public final class I implements Primitive {
         return of(IN.add(left.value, right.value));
     }
 
+    public static I subtract(I left, I right) {
+        return of(IN.sub(left.value, right.value));
+    }
+
     public static Str asStr(I value) {
         return Str.of(value.value.toString());
     }

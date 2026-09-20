@@ -9,3 +9,6 @@ Io.println(I32.asStr(sum));
 
 let neg = -1I32;
 Io.println(I32.asStr(neg));
+
+let difference = a - b;
+Io.println(I32.asStr(difference));

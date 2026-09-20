@@ -1,4 +1,4 @@
-package de.til7701.javelin.cli.test;
+package de.til7701.javelin.test.cli;
 
 import de.til7701.javelin.cli.Runner;
 import org.junit.jupiter.params.ParameterizedTest;
