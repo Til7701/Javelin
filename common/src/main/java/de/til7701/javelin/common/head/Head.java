@@ -21,14 +21,7 @@ import java.util.List;
 public class Head {
 
     private static final String[] sdkClassNames = {
-//            "Array",
-//            "BinaryOp",
-//            "BinaryOperator",
-//            "Char",
-//            "Default",
-//            "Getter",
-//            "Setter",
-//            "Str"
+            "javelin.head.UUID"
     };
 
     @Getter
@@ -44,17 +37,16 @@ public class Head {
 
     private List<Klass> loadDefaultClasses() {
         return Arrays.stream(sdkClassNames)
-                .map(name -> "/sdk/" + name + ".jvl")
                 .map(this::loadClassFromResource)
                 .toList();
     }
 
-    private Klass loadClassFromResource(String resourcePath) {
+    private Klass loadClassFromResource(String name) {
+        String resourcePath = "/head/" + name.replace('.', '/') + ".jvl";
         try (InputStream stream = Head.class.getResourceAsStream(resourcePath)) {
             if (stream == null) {
                 throw new RuntimeException("Grip class not found: " + resourcePath);
             }
-            String name = resourcePath.substring(resourcePath.lastIndexOf('/') + 1, resourcePath.length() - 4);
             CharStream charStream = CharStreams.fromStream(stream);
             Parser parser = new Parser();
             Ast ast = parser.parse(charStream, resourcePath);

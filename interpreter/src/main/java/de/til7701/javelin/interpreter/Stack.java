@@ -38,6 +38,12 @@ class Stack {
         return stack.pop();
     }
 
+    @Nullable StackFrame peek() {
+        if (stack.isEmpty())
+            return null;
+        return stack.pop();
+    }
+
     void initializeVariable(String name, Variable variable) {
         StackFrame stackFrame = stack.peek();
         if (stackFrame == null) {

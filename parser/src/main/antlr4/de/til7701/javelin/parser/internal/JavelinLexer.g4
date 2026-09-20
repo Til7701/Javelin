@@ -17,6 +17,7 @@ SET: 'set';
 ELSE: 'else';
 AS: 'as';
 EXTENDS: 'extends';
+IMPORT: 'import';
 
 LPAREN : '(';
 RPAREN : ')';
@@ -80,6 +81,7 @@ BooleanLiteral : 'true' | 'false';
 
 TypeIdentifier : [A-Z][a-zA-Z0-9]*;
 SymbolIdentifier : [a-z][a-zA-Z_0-9]*;
+FullyQualifiedTypeIdentifier : (SymbolIdentifier DOT)+ TypeIdentifier;
 
 WS: [ \t\r\n\u000C]+ -> skip;
 MULTI_LINE_COMMENT: '/*' .*? '*/' -> skip;

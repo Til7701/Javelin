@@ -1,7 +1,11 @@
 package de.til7701.javelin.interpreter;
 
+import de.til7701.javelin.common.shaft.Void;
+import de.til7701.javelin.interpreter.variable.PrimitiveVariable;
 import de.til7701.javelin.interpreter.variable.Variable;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.jspecify.annotations.Nullable;
 
@@ -13,6 +17,9 @@ import java.util.Map;
 class StackFrame {
 
     private final Map<String, Variable> variables;
+    @Setter
+    @Getter
+    private Variable returnValue = new PrimitiveVariable(Void.of());
 
     StackFrame() {
         this(new HashMap<>());

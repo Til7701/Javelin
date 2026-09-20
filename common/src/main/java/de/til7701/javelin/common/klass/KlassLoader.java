@@ -1,7 +1,9 @@
 package de.til7701.javelin.common.klass;
 
+import de.til7701.javelin.ast.Span;
 import de.til7701.javelin.ast.methods.MethodModifierValue;
 import de.til7701.javelin.ast.methods.MethodParameter;
+import de.til7701.javelin.ast.statement.Import;
 import de.til7701.javelin.ast.type.GenericType;
 import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
@@ -18,6 +20,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class KlassLoader {
@@ -74,6 +77,8 @@ public class KlassLoader {
         if (!classDefinition.generics().types().isEmpty())
             klassType = new GenericType(classDefinition.span(), klassType, classDefinition.generics());
         final Type finalKlassType = klassType;
+        List<Import> imports = Stream.concat(Stream.of(new Import(Span.undefined(), klassName, null)), classDefinition.imports().stream())
+                .toList();
         List<KlassField> fields = classDefinition.fields().stream()
                 .map(fieldDefinition -> new KlassField(
                         fieldDefinition.name(),
@@ -91,7 +96,7 @@ public class KlassLoader {
                         constructorDefinition.parameters().parameters().stream()
                                 .map(MethodParameter::name)
                                 .toArray(String[]::new),
-                        Optional.of(constructorDefinition.body())
+                        constructorDefinition.body()
                 ))
                 .toList();
         List<Metod> methods = classDefinition.methods().stream()
@@ -105,11 +110,11 @@ public class KlassLoader {
                         methodDefinition.parameters().parameters().stream()
                                 .map(MethodParameter::name)
                                 .toArray(String[]::new),
-                        Optional.of(methodDefinition.body())
+                        methodDefinition.body()
                 ))
                 .toList();
         return new JavelinKlass(
-                List.of(), // TODO get imports from ast
+                imports,
                 classDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.PUB),
                 classDefinition.modifiers().stream().anyMatch(m -> m.value() == TypeModifierValue.NATIVE),
                 klassName,

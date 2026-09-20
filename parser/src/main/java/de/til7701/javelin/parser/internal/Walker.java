@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Slf4j
 @NullMarked
@@ -55,18 +56,21 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
 
     @Override
     public Node visitCompilationUnit(JavelinParser.CompilationUnitContext ctx) {
-        List<JavelinParser.StatementContext> statementContexts = ctx.statement();
-        if (statementContexts != null && !statementContexts.isEmpty()) {
-            List<Statement> statements = ctx.statement().stream()
-                    .map(statementContext -> (Statement) visit(statementContext))
+        if (ctx.typeDefinition() != null) {
+            return visit(ctx.typeDefinition());
+        } else {
+            List<Statement> statements = Stream.concat(
+                            ctx.importStatement().stream()
+                                    .map(importContext -> (Import) visit(importContext)),
+                            ctx.statement().stream()
+                                    .map(statementContext -> (Statement) visit(statementContext))
+                    )
                     .toList();
 
             return new Script(
                     createSpan(ctx),
                     statements
             );
-        } else {
-            return visit(ctx.typeDefinition());
         }
     }
 
@@ -410,6 +414,9 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
 
     @Override
     public Node visitClassTypeDefinition(JavelinParser.ClassTypeDefinitionContext ctx) {
+        List<Import> imports = ctx.importStatement().stream()
+                .map(tmCtx -> (Import) visit(tmCtx))
+                .toList();
         List<TypeModifier> typeModifiers = ctx.typeModifier().stream()
                 .map(tmCtx -> (TypeModifier) visit(tmCtx))
                 .toList();
@@ -424,6 +431,7 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
                 .toList();
         return new ClassDefinition(
                 createSpan(ctx),
+                imports,
                 typeModifiers,
                 new TypeList(
                         ctx.genericTypeList() == null ?
@@ -481,13 +489,45 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
         List<MethodModifier> modifiers = ctx.methodModifier().stream()
                 .map(mpCtx -> (MethodModifier) visit(mpCtx))
                 .toList();
+        Statement body;
+        if (ctx.statement() != null)
+            body = (Statement) visit(ctx.statement());
+        else
+            body = (Statement) visit(ctx.statementList());
         return new ConstructorDefinition(
                 createSpan(ctx),
                 modifiers,
                 ctx.parametherList() == null
                         ? new MethodParameters(createSpan(ctx), Collections.emptyList())
                         : (MethodParameters) visit(ctx.parametherList()),
-                (Statement) visit(ctx.statement())
+                body
+        );
+    }
+
+    @Override
+    public Node visitInstanceFieldAccess(JavelinParser.InstanceFieldAccessContext ctx) {
+        return new InstanceFieldAccess(
+                createSpan(ctx),
+                (Expression) visit(ctx.expression()),
+                ctx.SymbolIdentifier().getText()
+        );
+    }
+
+    @Override
+    public Node visitStaticFieldAccess(JavelinParser.StaticFieldAccessContext ctx) {
+        return new StaticFieldAccess(
+                createSpan(ctx),
+                (Type) visit(ctx.typeIdentifier()),
+                ctx.SymbolIdentifier().getText()
+        );
+    }
+
+    @Override
+    public Node visitImportStatement(JavelinParser.ImportStatementContext ctx) {
+        return new Import(
+                createSpan(ctx),
+                ctx.FullyQualifiedTypeIdentifier().getText(),
+                ctx.TypeIdentifier() == null ? null : ctx.TypeIdentifier().getText()
         );
     }
 
@@ -499,6 +539,11 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
         Optional<Type> returnType = ctx.typeIdentifier() != null
                 ? Optional.of((Type) visit(ctx.typeIdentifier()))
                 : Optional.empty();
+        Statement body;
+        if (ctx.statement() != null)
+            body = (Statement) visit(ctx.statement());
+        else
+            body = (Statement) visit(ctx.statementList());
         return new MethodDefinition(
                 createSpan(ctx),
                 modifiers,
@@ -507,7 +552,7 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
                 ctx.parametherList() == null
                         ? new MethodParameters(createSpan(ctx), Collections.emptyList())
                         : (MethodParameters) visit(ctx.parametherList()),
-                (Statement) visit(ctx.statement())
+                body
         );
     }
 

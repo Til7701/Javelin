@@ -5,9 +5,11 @@ import de.til7701.javelin.ast.statement.Import;
 import de.til7701.javelin.ast.type.IType;
 import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
+import de.til7701.javelin.ast.type.UType;
 import de.til7701.javelin.common.environment.Environment;
 import de.til7701.javelin.common.environment.Imports;
 import de.til7701.javelin.common.shaft.I;
+import de.til7701.javelin.common.shaft.U;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,29 +38,29 @@ public sealed interface Klass permits JavaKlass, JavelinKlass {
         }
 
         for (Metod metod : metods) {
-            if (metod instanceof JavaMetod javaMetod) {
-                Type[] parameterTypes = Arrays.stream(javaMetod.parameterTypes())
-                        .map(type -> type.mapNames(imports::map))
-                        .map(type -> {
-                            if (type instanceof IType)
-                                return new SimpleType(Span.undefined(), I.TYPE.name());
-                            else
-                                return type;
-                        })
-                        .toArray(Type[]::new);
-                if (parameterTypes.length != argumentTypes.length) {
-                    continue;
+            Type[] parameterTypes = Arrays.stream(metod.parameterTypes())
+                    .map(type -> type.mapNames(imports::map))
+                    .map(type -> {
+                        if (type instanceof IType)
+                            return new SimpleType(Span.undefined(), I.TYPE.name());
+                        if (type instanceof UType)
+                            return new SimpleType(Span.undefined(), U.TYPE.name());
+                        else
+                            return type;
+                    })
+                    .toArray(Type[]::new);
+            if (parameterTypes.length != argumentTypes.length) {
+                continue;
+            }
+            boolean match = true;
+            for (int i = 0; i < parameterTypes.length; i++) {
+                if (!argumentTypes[i].isAssignableTo(parameterTypes[i])) {
+                    match = false;
+                    break;
                 }
-                boolean match = true;
-                for (int i = 0; i < parameterTypes.length; i++) {
-                    if (!argumentTypes[i].isAssignableTo(parameterTypes[i])) {
-                        match = false;
-                        break;
-                    }
-                }
-                if (match) {
-                    return Optional.of(metod);
-                }
+            }
+            if (match) {
+                return Optional.of(metod);
             }
         }
 

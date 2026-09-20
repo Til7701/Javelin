@@ -45,44 +45,50 @@ public class Interpreter {
         log.debug("Literals: {}", variableFactory.literalsToString());
     }
 
-    private void executeStatement(Statement statement, Stack context) {
+    private void executeStatement(Statement statement, Stack stack) {
         handleInterrupts();
         switch (statement) {
             case Import imp -> currentImports.addImport(imp);
             case VariableInitialization(_, String name, Expression value) ->
-                    context.initializeVariable(name, evaluateExpression(value, context));
+                    stack.initializeVariable(name, evaluateExpression(value, stack));
             case Assignment(_, Expression target, Expression value) -> {
-                Variable t = evaluateExpression(target, context);
-                t.set(evaluateExpression(value, context));
+                Variable t = evaluateExpression(target, stack);
+                t.set(evaluateExpression(value, stack));
             }
-            case ReturnStatement _ -> throw new NotImplementedException();
-            case StatementList(_, List<Statement> statements) -> statements.forEach(s -> executeStatement(s, context));
+            case ReturnStatement(_, Expression value) -> {
+                if (value != null) {
+                    Variable result = evaluateExpression(value, stack);
+                    StackFrame frame = stack.peek();
+                    if (frame != null) frame.setReturnValue(result);
+                }
+            }
+            case StatementList(_, List<Statement> statements) -> statements.forEach(s -> executeStatement(s, stack));
             case WhenStatement(_, boolean evalInstantly, Expression condition, Statement body) -> {
-                Set<Variable> topVariables = topVariables(condition, context);
-                Stack stackSnapshot = context.snapshot();
+                Set<Variable> topVariables = topVariables(condition, stack);
+                Stack stackSnapshot = stack.snapshot();
                 Imports importsSnapshot = currentImports.snapshot();
                 setupWhen(evalInstantly, stackSnapshot, importsSnapshot, condition, body, topVariables);
             }
-            case Expression e -> evaluateExpression(e, context);
+            case Expression e -> evaluateExpression(e, stack);
         }
     }
 
-    Variable evaluateExpression(Expression expression, Stack context) {
+    Variable evaluateExpression(Expression expression, Stack stack) {
         return switch (expression) {
-            case NewExpression(_, Expression e) -> evaluateExpression(e, context).createNew();
+            case NewExpression(_, Expression e) -> evaluateExpression(e, stack).createNew();
             case BooleanLiteralExpression(_, boolean value) -> variableFactory.fromBoolLiteral(value);
             case SignedIntegerLiteralExpression(_, long value, long bitCount) ->
                     variableFactory.fromILiteral(value, (int) bitCount);
             case UnsignedIntegerLiteralExpression(_, long value, long bitCount) ->
                     variableFactory.fromULiteral(value, (int) bitCount);
             case StringLiteralExpression(_, String value) -> variableFactory.fromStrLiteral(value);
-            case SymbolExpression(_, String identifier) -> Objects.requireNonNull(context.getVariable(identifier));
+            case SymbolExpression(_, String identifier) -> Objects.requireNonNull(stack.getVariable(identifier));
             case InstanceMethodCall _ -> throw new NotImplementedException();
             case StaticMethodCall(_, Type type, String methodName, List<Expression> arguments) -> {
                 Klass klass = environment.getKlassRegister().getKlass(type, currentImports)
                         .orElseThrow(() -> new RuntimeException("Class not found for type: " + type));
                 List<Variable> argumentValues = arguments.stream()
-                        .map((Expression e) -> evaluateExpression(e, context))
+                        .map((Expression e) -> evaluateExpression(e, stack))
                         .toList();
                 Type[] argumentTypes = argumentValues.stream()
                         .map(Variable::type)
@@ -91,12 +97,12 @@ public class Interpreter {
                         .orElseThrow(() -> new RuntimeException("Method: " + methodName + " with args: " + Arrays.deepToString(argumentTypes) + " not found for class: " + klass));
                 yield switch (method) {
                     case JavaMetod javaMetod -> executeJavaMethod(javaMetod, argumentValues);
-                    case JavelinMetod javelinMetod -> executeJavelinMethod(javelinMetod, argumentValues);
+                    case JavelinMetod javelinMetod -> executeJavelinMethod(javelinMetod, argumentValues, stack);
                 };
             }
             case BinaryExpression(_, Expression left, BinaryOperator binaryOperator, Expression right) -> {
-                Variable leftV = evaluateExpression(left, context);
-                Variable rightV = evaluateExpression(right, context);
+                Variable leftV = evaluateExpression(left, stack);
+                Variable rightV = evaluateExpression(right, stack);
                 String methodName = binaryOperator.name().toLowerCase(Locale.ROOT);
                 Type type = leftV.type();
                 Klass klass = environment.getKlassRegister().getKlass(type, currentImports)
@@ -106,15 +112,18 @@ public class Interpreter {
                         .orElseThrow(() -> new RuntimeException("Method: " + methodName + " with args: " + Arrays.deepToString(argumentTypes) + " not found for class: " + klass));
                 yield switch (method) {
                     case JavaMetod javaMetod -> executeJavaMethod(javaMetod, List.of(leftV, rightV));
-                    case JavelinMetod javelinMetod -> executeJavelinMethod(javelinMetod, List.of(leftV, rightV));
+                    case JavelinMetod javelinMetod -> executeJavelinMethod(javelinMetod, List.of(leftV, rightV), stack);
                 };
             }
             case ArrayLiteralCreation(_, List<Expression> values) -> {
                 Variable[] variables = values.stream()
-                        .map((Expression e) -> evaluateExpression(e, context))
+                        .map((Expression e) -> evaluateExpression(e, stack))
                         .toArray(Variable[]::new);
                 Type elementType = variables[0].type();
                 yield variableFactory.asArray(variables, elementType);
+            }
+            case ConstructorCall(_, Type type, List<Expression> arguments) -> {
+
             }
             default -> throw new NotImplementedException(expression.toString());
         };
@@ -139,8 +148,11 @@ public class Interpreter {
         return variableFactory.fromJavaValue(result);
     }
 
-    private Variable executeJavelinMethod(JavelinMetod javelinMetod, List<Variable> argumentValues) {
-        throw new NotImplementedException();
+    private Variable executeJavelinMethod(JavelinMetod javelinMetod, List<Variable> argumentValues, Stack stack) {
+        stack.push(new StackFrame());
+        executeStatement(javelinMetod.body(), stack);
+        StackFrame frame = stack.pop();
+        return frame.getReturnValue();
     }
 
     private Set<Variable> topVariables(Expression expression, Stack context) {

@@ -1,0 +1,17 @@
+pub class;
+
+U64 mostSigBits;
+U64 leastSigBits;
+
+pub (U64 mostSigBits, U64 leastSigBits) {
+    this.mostSigBits = mostSigBits;
+    this.leastSigBits = leastSigBits;
+}
+
+pub static UUID random() {
+    return UUID(0U64, 0U64);
+}
+
+pub static Bool eq(UUID left, UUID right) {
+    return left.mostSigBits == right.mostSigBits && left.leastSigBits == right.leastSigBits;
+}

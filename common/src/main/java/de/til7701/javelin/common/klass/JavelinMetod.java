@@ -3,7 +3,7 @@ package de.til7701.javelin.common.klass;
 import de.til7701.javelin.ast.statement.Statement;
 import de.til7701.javelin.ast.type.Type;
 
-import java.util.Optional;
+import java.util.Arrays;
 
 public record JavelinMetod(
         boolean isStatic,
@@ -11,6 +11,18 @@ public record JavelinMetod(
         Type returnType,
         Type[] parameterTypes,
         String[] parameterNames,
-        Optional<Statement> body
+        Statement body
 ) implements Metod {
+
+    @Override
+    public String toString() {
+        return "JavelinMetod{" +
+                "isStatic=" + isStatic +
+                ", name='" + name + '\'' +
+                ", returnType=" + returnType +
+                ", parameterTypes=" + Arrays.deepToString(parameterTypes) +
+                ", parameterNames=" + Arrays.deepToString(parameterNames) +
+                ", body=" + body +
+                '}';
+    }
 }

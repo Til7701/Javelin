@@ -4,7 +4,7 @@ options {
     tokenVocab=JavelinLexer;
 }
 
-compilationUnit : (statement* | typeDefinition) EOF;
+compilationUnit : (importStatement* statement* | typeDefinition) EOF;
 
 statementList : LBRACE statement* RBRACE;
 
@@ -35,6 +35,8 @@ expression
     | expression LBRACK expression RBRACK #collectionAccess
     | expression AS typeIdentifier #typeCastExpression
     | NEW expression #newExpression
+    | expression DOT SymbolIdentifier #instanceFieldAccess
+    | typeIdentifier DOT SymbolIdentifier #staticFieldAccess
     ;
 
 leftUnaryOperator
@@ -74,6 +76,8 @@ typeIdentifier
     | typeIdentifier genericTypeList #genericTypeIdentifier
     ;
 
+importStatement : IMPORT FullyQualifiedTypeIdentifier (AS TypeIdentifier)? SEMI;
+
 typeDefinition
     : classTypeDefinition
     ;
@@ -83,7 +87,7 @@ typeModifier
     ;
 
 classTypeDefinition
-    : typeModifier* CLASS genericTypeList? SEMI fieldDefinition* constructorDefinition* methodDefinition*
+    : importStatement* typeModifier* CLASS genericTypeList? SEMI fieldDefinition* constructorDefinition* methodDefinition*
     ;
 
 genericTypeList
@@ -100,11 +104,11 @@ fieldModifier
     ;
 
 constructorDefinition
-    : methodModifier* LPAREN parametherList? RPAREN statement
+    : methodModifier* LPAREN parametherList? RPAREN (statement | statementList)
     ;
 
 methodDefinition
-    : methodModifier* typeIdentifier? SymbolIdentifier LPAREN parametherList? RPAREN statement
+    : methodModifier* typeIdentifier? SymbolIdentifier LPAREN parametherList? RPAREN (statement | statementList)
     ;
 
 methodModifier
