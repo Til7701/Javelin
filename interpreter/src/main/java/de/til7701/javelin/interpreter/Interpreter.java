@@ -71,6 +71,8 @@ public class Interpreter {
         return switch (expression) {
             case NewExpression(_, Expression e) -> evaluateExpression(e, context).createNew();
             case BooleanLiteralExpression(_, boolean value) -> variableFactory.fromBoolLiteral(value);
+            case SignedIntegerLiteralExpression(_, long value, long bitCount) ->
+                    variableFactory.fromILiteral((int) value);
             case StringLiteralExpression(_, String value) -> variableFactory.fromStrLiteral(value);
             case SymbolExpression(_, String identifier) -> Objects.requireNonNull(context.getVariable(identifier));
             case InstanceMethodCall _ -> throw new NotImplementedException();

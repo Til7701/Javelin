@@ -2,9 +2,7 @@ package de.til7701.javelin.interpreter.variable;
 
 import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.common.NotImplementedException;
-import de.til7701.javelin.common.shaft.Array;
-import de.til7701.javelin.common.shaft.Primitive;
-import de.til7701.javelin.common.shaft.Str;
+import de.til7701.javelin.common.shaft.*;
 import de.til7701.javelin.common.shaft.Void;
 import org.jspecify.annotations.Nullable;
 
@@ -19,6 +17,10 @@ public class VariableFactory {
 
     public Variable fromStrLiteral(String value) {
         return new PrimitiveVariable(Str.of(value));
+    }
+
+    public Variable fromILiteral(int value) {
+        return new PrimitiveVariable(I.of(value));
     }
 
     public Variable asArray(Variable[] variables, Type elementType) {

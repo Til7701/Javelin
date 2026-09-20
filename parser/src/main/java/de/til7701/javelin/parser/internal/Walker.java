@@ -141,7 +141,7 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitSignedIntegerLiteralExpression(JavelinParser.SignedIntegerLiteralExpressionContext ctx) {
         String literal = ctx.SignedIntegerLiteral().getText();
         String[] split = literal.split("I", 2);
-        return new UnsignedIntegerLiteralExpression(
+        return new SignedIntegerLiteralExpression(
                 createSpan(ctx),
                 Long.parseLong(split[0]),
                 Long.parseLong(split[1])
@@ -331,6 +331,14 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
                 createSpan(ctx),
                 (Type) visit(ctx.typeIdentifier()),
                 (Expression) visit(ctx.expression())
+        );
+    }
+
+    @Override
+    public Node visitITypeIdentifier(JavelinParser.ITypeIdentifierContext ctx) {
+        return new IType(
+                createSpan(ctx),
+                Integer.parseInt(ctx.IntegerTypeIdentifier().getText().substring(1))
         );
     }
 

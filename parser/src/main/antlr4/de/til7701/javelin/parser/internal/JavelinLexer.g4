@@ -66,9 +66,14 @@ OR_ASSIGN      : '|=';
 XOR_ASSIGN     : '^=';
 MOD_ASSIGN     : '%=';
 
-SignedIntegerLiteral : [0-9]+ 'I' [0-9]+;
-UnsignedIntegerLiteral : [0-9]+ 'U' [0-9]+;
-FloatLiteral : [0-9]+ 'F' [0-9]+;
+INTEGER : [0-9]+;
+I : 'I';
+U : 'U';
+
+IntegerTypeIdentifier : (I | U) INTEGER;
+SignedIntegerLiteral : INTEGER I INTEGER;
+UnsignedIntegerLiteral : INTEGER U INTEGER;
+
 StringLiteral : '"' ( ~["\\] | '\\' . )* '"';
 BooleanLiteral : 'true' | 'false';
 

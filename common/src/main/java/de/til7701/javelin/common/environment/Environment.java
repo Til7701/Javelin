@@ -15,6 +15,7 @@ public class Environment {
     private static final Class<?>[] SHAFT = new Class<?>[]{
             Void.class,
             Bool.class,
+            I.class,
             Str.class,
             Array.class,
             Io.class,
@@ -39,7 +40,7 @@ public class Environment {
     }
 
     public Imports getPrimitiveImports() {
-    return     primitiveImports.snapshot();
+        return primitiveImports.snapshot();
     }
 
     private String getFullyQualifiedJavelinName(Class<?> clazz) {
