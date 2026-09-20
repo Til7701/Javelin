@@ -9,31 +9,30 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class IN {
+public final class UN {
 
-    private static final long ONES = 0xffffffffffffffffL;
-
+    @Getter
     private final long value;
     private final long valueBitmask;
     @Getter
     private final int bitCount;
 
-    public static IN of(long value, int bitCount) {
+    public static UN of(long value, int bitCount) {
         if (bitCount > 64)
             throw new NotImplementedException();
-        return new IN(value, createBitmask(bitCount), bitCount);
+        return new UN(value, createBitmask(bitCount), bitCount);
     }
 
     private static long createBitmask(int bitCount) {
         long bitmask = 0;
-        for (int i = 0; i < bitCount - 1; i++) {
+        for (int i = 0; i < bitCount; i++) {
             bitmask = bitmask << 1;
             bitmask |= 1;
         }
         return bitmask;
     }
 
-    private static long longerBitmask(IN in1, IN in2) {
+    private static long longerBitmask(UN in1, UN in2) {
         long longerBitmask = in1.valueBitmask;
         if (Long.bitCount(longerBitmask) < Long.bitCount(in2.valueBitmask))
             longerBitmask = in2.valueBitmask;
@@ -41,29 +40,21 @@ public final class IN {
     }
 
     private static long crop(long valueToCrop, long bitmask) {
-        long signBitmask = Long.highestOneBit(bitmask) << 1;
-        boolean sign = Long.bitCount(valueToCrop & signBitmask) > 0;
-        long cropped = valueToCrop & bitmask;
-        if (!sign) {
-            return cropped;
-        } else {
-            long signAndRest = ONES & ~bitmask;
-            return cropped | signAndRest;
-        }
+        return valueToCrop & bitmask;
     }
 
-    public static IN add(IN left, IN right) {
+    public static UN add(UN left, UN right) {
         long sum = left.value + right.value;
         long longerBitmask = longerBitmask(left, right);
         sum = crop(sum, longerBitmask);
-        return new IN(sum, longerBitmask, Long.bitCount(longerBitmask) + 1);
+        return new UN(sum, longerBitmask, Long.bitCount(longerBitmask));
     }
 
-    public static IN sub(IN left, IN right) {
+    public static UN sub(UN left, UN right) {
         long difference = left.value - right.value;
         long longerBitmask = longerBitmask(left, right);
         difference = crop(difference, longerBitmask);
-        return new IN(difference, longerBitmask, Long.bitCount(longerBitmask) + 1);
+        return new UN(difference, longerBitmask, Long.bitCount(longerBitmask));
     }
 
     @Override
@@ -73,7 +64,7 @@ public final class IN {
 
     @Override
     public boolean equals(@Nullable Object o) {
-        if (!(o instanceof IN in)) return false;
+        if (!(o instanceof UN in)) return false;
         return value == in.value && valueBitmask == in.valueBitmask;
     }
 

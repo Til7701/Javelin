@@ -67,7 +67,8 @@ binaryOperator
     ;
 
 typeIdentifier
-    : IntegerTypeIdentifier #iTypeIdentifier
+    : SignedIntegerTypeIdentifier #iTypeIdentifier
+    | UnsignedIntegerTypeIdentifier #uTypeIdentifier
     | TypeIdentifier #simpleTypeIdentifier
     | typeIdentifier LBRACK typeIdentifier RBRACK #collectionTypeIdentifier
     | typeIdentifier genericTypeList #genericTypeIdentifier

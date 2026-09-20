@@ -9,6 +9,7 @@ module de.til7701.javelin.common {
     requires de.til7701.javelin.parser;
     requires org.antlr.antlr4.runtime;
     requires org.jspecify;
+    requires jdk.jshell;
 
     exports de.til7701.javelin.common.environment;
     exports de.til7701.javelin.common.klass;

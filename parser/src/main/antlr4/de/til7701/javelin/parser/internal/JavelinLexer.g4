@@ -70,7 +70,8 @@ INTEGER : [0-9]+;
 I : 'I';
 U : 'U';
 
-IntegerTypeIdentifier : (I | U) INTEGER;
+UnsignedIntegerTypeIdentifier : U INTEGER;
+SignedIntegerTypeIdentifier : I INTEGER;
 SignedIntegerLiteral : SUB? INTEGER I INTEGER;
 UnsignedIntegerLiteral : INTEGER U INTEGER;
 

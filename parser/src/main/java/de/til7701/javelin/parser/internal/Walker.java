@@ -338,7 +338,15 @@ public class Walker extends JavelinParserBaseVisitor<Node> {
     public Node visitITypeIdentifier(JavelinParser.ITypeIdentifierContext ctx) {
         return new IType(
                 createSpan(ctx),
-                Integer.parseInt(ctx.IntegerTypeIdentifier().getText().substring(1))
+                Integer.parseInt(ctx.SignedIntegerTypeIdentifier().getText().substring(1))
+        );
+    }
+
+    @Override
+    public Node visitUTypeIdentifier(JavelinParser.UTypeIdentifierContext ctx) {
+        return new UType(
+                createSpan(ctx),
+                Integer.parseInt(ctx.UnsignedIntegerTypeIdentifier().getText().substring(1))
         );
     }
 

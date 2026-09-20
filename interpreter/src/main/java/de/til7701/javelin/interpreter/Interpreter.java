@@ -73,6 +73,8 @@ public class Interpreter {
             case BooleanLiteralExpression(_, boolean value) -> variableFactory.fromBoolLiteral(value);
             case SignedIntegerLiteralExpression(_, long value, long bitCount) ->
                     variableFactory.fromILiteral(value, (int) bitCount);
+            case UnsignedIntegerLiteralExpression(_, long value, long bitCount) ->
+                    variableFactory.fromULiteral(value, (int) bitCount);
             case StringLiteralExpression(_, String value) -> variableFactory.fromStrLiteral(value);
             case SymbolExpression(_, String identifier) -> Objects.requireNonNull(context.getVariable(identifier));
             case InstanceMethodCall _ -> throw new NotImplementedException();

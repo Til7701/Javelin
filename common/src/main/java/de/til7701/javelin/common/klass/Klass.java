@@ -51,7 +51,7 @@ public sealed interface Klass permits JavaKlass, JavelinKlass {
                 }
                 boolean match = true;
                 for (int i = 0; i < parameterTypes.length; i++) {
-                    if (!parameterTypes[i].equals(argumentTypes[i])) {
+                    if (!argumentTypes[i].isAssignableTo(parameterTypes[i])) {
                         match = false;
                         break;
                     }

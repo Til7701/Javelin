@@ -14,4 +14,12 @@ public record IType(
         return this;
     }
 
+    @Override
+    public boolean isAssignableTo(Type other) {
+        return (other instanceof IType(_, int otherBitCount)
+                && this.bitCount == otherBitCount)
+                || (other instanceof SimpleType(_, String name)
+                && name.equals("javelin.shaft.I"));
+    }
+
 }

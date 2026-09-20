@@ -22,7 +22,7 @@ public final class Array implements Primitive {
     @Ignore
     private Array(Object[] value, Type elementType) {
         this.value = value;
-        this.type = new CollectionType(Span.undefined(), Bool.TYPE, elementType); // TODO change to integer
+        this.type = new CollectionType(Span.undefined(), U.TYPE, elementType);
     }
 
     @Ignore
@@ -30,9 +30,9 @@ public final class Array implements Primitive {
         return new Array(value, elementType);
     }
 
-    public static Object index(Array array, Bool index) {
-        if (index.isValue()) return array.value[0];
-        else return array.value[1];
+    public static Object index(Array array, U index) {
+        int i = (int) index.getValue().getValue();
+        return array.value[i];
     }
 
     public static Str asStr(Array value) {

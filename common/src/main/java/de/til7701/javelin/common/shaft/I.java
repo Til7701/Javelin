@@ -1,6 +1,7 @@
 package de.til7701.javelin.common.shaft;
 
 import de.til7701.javelin.ast.Span;
+import de.til7701.javelin.ast.type.IType;
 import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
 import de.til7701.javelin.common.util.Ignore;
@@ -43,6 +44,6 @@ public final class I implements Primitive {
     @Ignore
     @Override
     public Type type() {
-        return TYPE;
+        return new IType(Span.undefined(), value.getBitCount());
     }
 }

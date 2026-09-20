@@ -3,9 +3,11 @@ package de.til7701.javelin.common.klass;
 import de.til7701.javelin.ast.type.IType;
 import de.til7701.javelin.ast.type.SimpleType;
 import de.til7701.javelin.ast.type.Type;
+import de.til7701.javelin.ast.type.UType;
 import de.til7701.javelin.common.NotImplementedException;
 import de.til7701.javelin.common.environment.Imports;
 import de.til7701.javelin.common.shaft.I;
+import de.til7701.javelin.common.shaft.U;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +25,7 @@ public class KlassRegister {
         return switch (type) {
             case SimpleType(_, String name) -> Optional.of(klasses.get(imports.map(name)));
             case IType _ -> Optional.of(klasses.get(I.TYPE.name()));
+            case UType _ -> Optional.of(klasses.get(U.TYPE.name()));
             default -> throw new NotImplementedException(type.toString());
         };
     }

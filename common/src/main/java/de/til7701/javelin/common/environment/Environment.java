@@ -16,6 +16,7 @@ public class Environment {
             Void.class,
             Bool.class,
             I.class,
+            U.class,
             Str.class,
             Array.class,
             Io.class,

@@ -4,24 +4,22 @@ import de.til7701.javelin.ast.Span;
 
 import java.util.function.Function;
 
-public record GenericType(
+public record UType(
         Span span,
-        Type baseType,
-        TypeList typeArguments
+        int bitCount
 ) implements Type {
 
     @Override
     public Type mapNames(Function<String, String> nameMapper) {
-        return new GenericType(
-                span,
-                baseType.mapNames(nameMapper),
-                typeArguments.mapNames(nameMapper)
-        );
+        return this;
     }
 
     @Override
     public boolean isAssignableTo(Type other) {
-        return false;
+        return (other instanceof UType(_, int otherBitCount)
+                && this.bitCount == otherBitCount)
+                || (other instanceof SimpleType(_, String name)
+                && name.equals("javelin.shaft.U"));
     }
 
 }
