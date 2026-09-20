@@ -2,6 +2,7 @@ package de.til7701.javelin.interpreter;
 
 import module de.til7701.javelin.ast;
 import module de.til7701.javelin.common;
+import de.til7701.javelin.interpreter.variable.PrimitiveVariable;
 import de.til7701.javelin.interpreter.variable.Variable;
 import de.til7701.javelin.interpreter.variable.VariableFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -60,8 +61,7 @@ public class Interpreter {
                 Set<Variable> topVariables = topVariables(condition, context);
                 Stack stackSnapshot = context.snapshot();
                 Imports importsSnapshot = currentImports.snapshot();
-                When when = new When(this, stackSnapshot, importsSnapshot, condition, body, topVariables);
-                if (evalInstantly) when.eval();
+                setupWhen(evalInstantly, stackSnapshot, importsSnapshot, condition, body, topVariables);
             }
             case Expression e -> evaluateExpression(e, context);
         }
@@ -165,15 +165,34 @@ public class Interpreter {
         this.interruptQueue.addLast(item);
     }
 
+    private void setupWhen(boolean evalInstantly, Stack stack, Imports imports, Expression condition, Statement body, Collection<Variable> topVariables) {
+        topVariables.forEach(v -> v.listen(() -> evalWhen(stack, imports, condition, body)));
+        if (evalInstantly) evalWhen(stack, imports, condition, body);
+    }
+
+    private void evalWhen(Stack stack, Imports imports, Expression condition, Statement body) {
+        Variable result = this.evaluateExpression(condition, stack);
+        if (result instanceof PrimitiveVariable primitiveVariable
+                && primitiveVariable.javaValue() instanceof Bool bool
+                && bool.isValue()) {
+            this.interrupt(new Interrupt(body, stack, imports));
+        }
+    }
+
     private void handleInterrupts() {
         if (!executingInterrupt) {
             while (!interruptQueue.isEmpty()) {
                 Interrupt interrupt = this.interruptQueue.pollFirst();
                 Imports oldImports = currentImports;
                 currentImports = interrupt.imports();
+
                 executingInterrupt = true;
-                executeStatement(interrupt.unterbrechungsbehandlungsprozedur(), interrupt.stack());
+                Stack stack = interrupt.stack();
+                stack.push(new StackFrame());
+                executeStatement(interrupt.unterbrechungsbehandlungsprozedur(), stack);
+                stack.pop();
                 executingInterrupt = false;
+
                 currentImports = oldImports;
             }
         }
