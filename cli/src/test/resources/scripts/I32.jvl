@@ -6,3 +6,6 @@ Io.println(I32.asStr(b));
 
 let sum = a + b;
 Io.println(I32.asStr(sum));
+
+let neg = -1I32;
+Io.println(I32.asStr(neg));

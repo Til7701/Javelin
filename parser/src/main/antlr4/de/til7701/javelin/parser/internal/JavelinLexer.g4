@@ -71,7 +71,7 @@ I : 'I';
 U : 'U';
 
 IntegerTypeIdentifier : (I | U) INTEGER;
-SignedIntegerLiteral : INTEGER I INTEGER;
+SignedIntegerLiteral : SUB? INTEGER I INTEGER;
 UnsignedIntegerLiteral : INTEGER U INTEGER;
 
 StringLiteral : '"' ( ~["\\] | '\\' . )* '"';
